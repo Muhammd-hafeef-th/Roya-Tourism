@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, ChevronDown, X, Menu } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 /* ─── Nav link data ────────────────────────────────────────────── */
 const navLinks = [
@@ -39,6 +40,13 @@ function useScrolled(px = 80) {
 
 export default function Navbar() {
   const scrolled = useScrolled(60);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHome = location.pathname === '/';
+  
+  // If not on home page, ALWAYS act as if scrolled to maintain solid background and dark text.
+  const isSolid = scrolled || !isHome;
+
   const [active, setActive] = useState('#hero');
   const [mobileOpen, setMobile] = useState(false);
   const [indicatorStyle, setIndicator] = useState({ left: 0, width: 0 });
@@ -61,7 +69,12 @@ export default function Navbar() {
   const handleNav = (href: string) => {
     setActive(href);
     setMobile(false);
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    if (isHome) {
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If we are on the International Trips page, use react-router to go back to home + hash
+      navigate('/' + href);
+    }
   };
 
   /* ── Update gold indicator under active desktop link ── */
@@ -84,15 +97,15 @@ export default function Navbar() {
         className={`
           fixed top-0 left-0 right-0 z-50
           transition-all duration-500 ease-out
-          ${scrolled
-            ? 'bg-white/95 backdrop-blur-xl border-b border-gold-200/60 shadow-[0_4px_32px_rgba(201,168,76,0.10)]'
+          ${isSolid
+            ? 'bg-white/95 backdrop-blur-xl border-b border-[#c9a84c]/20 shadow-[0_4px_32px_rgba(201,168,76,0.10)]'
             : 'bg-transparent border-b border-white/10'
           }
         `}
       >
         {/* ── Top luxury accent line ── */}
         <div
-          className={`h-[2px] w-full transition-opacity duration-500 ${scrolled ? 'opacity-100' : 'opacity-0'}`}
+          className={`h-[2px] w-full transition-opacity duration-500 ${isSolid ? 'opacity-100' : 'opacity-0'}`}
           style={{ background: 'linear-gradient(90deg, transparent, #c9a84c 30%, #f0d98a 50%, #c9a84c 70%, transparent)' }}
         />
 
@@ -107,7 +120,7 @@ export default function Navbar() {
           {/* ══ LOGO ════════════════════════════════════════════ */}
           <button
             onClick={() => handleNav('#hero')}
-            className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 relative z-10"
+            className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 relative z-10 text-left"
             aria-label="Roya Tourism – back to top"
           >
             {/* Logo mark */}
@@ -120,7 +133,7 @@ export default function Navbar() {
               <img
                 src="/logo1.png"
                 alt="Roya Tourism logo"
-                className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(201,168,76,0.4)]"
+                className={`w-full h-full object-contain ${!isSolid ? 'drop-shadow-[0_2px_8px_rgba(201,168,76,0.4)]' : ''}`}
               />
             </div>
 
@@ -130,7 +143,7 @@ export default function Navbar() {
                 font-serif font-semibold tracking-[0.12em] uppercase
                 text-xl xs:text-2xl sm:text-3xl md:text-3xl lg:text-2xl xl:text-3xl 2xl:text-4xl 3xl:text-5xl 4xl:text-6xl
                 transition-all duration-500
-                ${scrolled ? 'text-stone-900' : 'text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]'}
+                ${isSolid ? 'text-stone-900' : 'text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]'}
               `}>
                 Roya
               </span>
@@ -139,7 +152,7 @@ export default function Navbar() {
                 text-[0.45rem] xs:text-[0.48rem] sm:text-[0.55rem] md:text-[0.55rem] lg:text-[0.5rem] xl:text-[0.55rem] 2xl:text-[0.65rem] 3xl:text-[0.75rem] 4xl:text-[0.9rem]
                 mt-0.5
                 transition-all duration-500
-                ${scrolled ? 'text-gold-600' : 'text-gold-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]'}
+                ${isSolid ? 'text-[#c9a84c]' : 'text-[#c9a84c] drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]'}
               `}>
                 Tourism
               </span>
@@ -168,7 +181,7 @@ export default function Navbar() {
                   const active_el = navRef.current?.querySelector(`[data-active="true"]`) as HTMLButtonElement | null;
                   if (active_el) updateIndicator(active_el);
                 }}
-                data-active={active === link.href}
+                data-active={active === link.href && isHome}
                 className={`
                   relative px-2.5 xl:px-3 2xl:px-4 3xl:px-5 4xl:px-6
                   py-1.5 xl:py-2
@@ -176,12 +189,12 @@ export default function Navbar() {
                   text-xs xl:text-sm 2xl:text-base 3xl:text-lg 4xl:text-xl
                   rounded-md
                   transition-all duration-300 ease-out
-                  ${scrolled
-                    ? active === link.href
-                      ? 'text-gold-600'
+                  ${isSolid
+                    ? (active === link.href && isHome)
+                      ? 'text-[#c9a84c]'
                       : 'text-stone-600 hover:text-stone-900'
-                    : active === link.href
-                      ? 'text-amber-300'
+                    : (active === link.href && isHome)
+                      ? 'text-[#f0d98a]'
                       : 'text-white/80 hover:text-white'
                   }
                 `}
@@ -201,7 +214,7 @@ export default function Navbar() {
                 text-xs xl:text-sm 2xl:text-base 3xl:text-lg 4xl:text-xl
                 font-sans font-medium whitespace-nowrap
                 transition-colors duration-300
-                ${scrolled ? 'text-stone-600 hover:text-gold-600' : 'text-white/80 hover:text-amber-300'}
+                ${isSolid ? 'text-stone-600 hover:text-[#c9a84c]' : 'text-white/80 hover:text-[#f0d98a]'}
               `}
             >
               <Phone size={14} className="flex-shrink-0 2xl:w-4 2xl:h-4 3xl:w-5 3xl:h-5" />
@@ -209,7 +222,7 @@ export default function Navbar() {
             </a>
 
             {/* Divider */}
-            <div className={`h-5 2xl:h-6 w-px transition-colors duration-300 ${scrolled ? 'bg-stone-200' : 'bg-white/20'}`} />
+            <div className={`h-5 2xl:h-6 w-px transition-colors duration-300 ${isSolid ? 'bg-stone-200' : 'bg-white/20'}`} />
 
             {/* Book Now CTA */}
             <button
@@ -223,12 +236,12 @@ export default function Navbar() {
                 font-sans font-semibold tracking-wider
                 transition-all duration-400
                 group
-                ${scrolled
-                  ? 'bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 bg-[length:200%_100%] text-white shadow-gold-sm hover:shadow-gold hover:bg-right-center hover:-translate-y-0.5'
+                ${isSolid
+                  ? 'bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] bg-[length:200%_100%] text-white shadow-[0_4px_15px_rgba(201,168,76,0.3)] hover:shadow-[0_8px_25px_rgba(201,168,76,0.5)] hover:bg-right-center hover:-translate-y-0.5'
                   : 'bg-white/10 border border-white/30 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5'
                 }
               `}
-              style={scrolled ? {
+              style={isSolid ? {
                 background: 'linear-gradient(135deg, #c9a84c 0%, #f0d98a 50%, #c9a84c 100%)',
                 backgroundSize: '200% auto',
               } : undefined}
@@ -250,10 +263,10 @@ export default function Navbar() {
               transition-all duration-300
               flex-shrink-0 relative z-10
               ${mobileOpen
-                ? scrolled
-                  ? 'bg-gold-100 text-gold-700'
+                ? isSolid
+                  ? 'bg-[#c9a84c]/10 text-[#c9a84c]'
                   : 'bg-white/20 text-white'
-                : scrolled
+                : isSolid
                   ? 'text-stone-700 hover:bg-stone-100'
                   : 'text-white hover:bg-white/15'
               }
@@ -315,7 +328,7 @@ export default function Navbar() {
                 w-[85vw] max-w-sm sm:max-w-md
                 flex flex-col
                 bg-white
-                shadow-[−4px_0_60px_rgba(0,0,0,0.15)]
+                shadow-[-4px_0_60px_rgba(0,0,0,0.15)]
                 overflow-y-auto
               "
             >
@@ -325,12 +338,12 @@ export default function Navbar() {
                 px-6 sm:px-8
                 pt-5 sm:pt-6
                 pb-4 sm:pb-5
-                border-b border-cream-200
+                border-b border-[#faf9f7]
               ">
                 {/* Mini logo in drawer */}
                 <button
                   onClick={() => handleNav('#hero')}
-                  className="flex items-center gap-2.5 group"
+                  className="flex items-center gap-2.5 group text-left"
                 >
                   <img
                     src="/logo1.png"
@@ -341,7 +354,7 @@ export default function Navbar() {
                     <span className="font-serif font-semibold tracking-[0.1em] uppercase text-xl sm:text-2xl text-stone-900">
                       Roya
                     </span>
-                    <span className="font-sans font-medium tracking-[0.3em] uppercase text-[0.48rem] sm:text-[0.55rem] text-gold-600 mt-0.5">
+                    <span className="font-sans font-medium tracking-[0.3em] uppercase text-[0.48rem] sm:text-[0.55rem] text-[#c9a84c] mt-0.5">
                       Tourism
                     </span>
                   </div>
@@ -376,15 +389,15 @@ export default function Navbar() {
                       tracking-wide
                       transition-all duration-200
                       group
-                      ${active === link.href
-                        ? 'bg-gradient-to-r from-gold-50 to-amber-50 text-gold-700 border border-gold-200/60'
+                      ${(active === link.href && isHome)
+                        ? 'bg-gradient-to-r from-[#c9a84c]/5 to-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/30'
                         : 'text-stone-700 hover:bg-stone-50 hover:text-stone-900 border border-transparent'
                       }
                     `}
                   >
                     <span>{link.label}</span>
-                    {active === link.href && (
-                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gold-500 flex-shrink-0" />
+                    {(active === link.href && isHome) && (
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#c9a84c] flex-shrink-0" />
                     )}
                   </motion.button>
                 ))}
@@ -398,15 +411,15 @@ export default function Navbar() {
                 className="px-4 sm:px-6 pb-8 sm:pb-10 pt-2 space-y-3 sm:space-y-4"
               >
                 {/* Divider */}
-                <div className="h-px w-full bg-cream-200" />
+                <div className="h-px w-full bg-[#faf9f7]" />
 
                 {/* Phone */}
                 <a
                   href="tel:+1234567890"
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-600 hover:text-gold-600 hover:bg-gold-50 transition-all"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-600 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all"
                 >
-                  <div className="w-9 h-9 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
-                    <Phone size={16} className="text-gold-600" />
+                  <div className="w-9 h-9 rounded-full bg-[#c9a84c]/10 flex items-center justify-center flex-shrink-0">
+                    <Phone size={16} className="text-[#c9a84c]" />
                   </div>
                   <div className="flex flex-col leading-tight">
                     <span className="text-xs font-sans text-stone-400 tracking-wide">Call us</span>

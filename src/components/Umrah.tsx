@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Star, Hotel, Plane, Shield, MessageCircle, Check, ChevronRight } from 'lucide-react';
+import { Star, Hotel, Plane, Shield, MessageCircle, Check } from 'lucide-react';
 
 const packages = [
   {
@@ -41,112 +41,102 @@ const packages = [
 function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-50px' });
+  const isMiddle = pkg.accent;
 
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 50 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay: index * 0.15, ease: [0.21, 0.47, 0.32, 0.98] }}
-      className={`relative group rounded-[2rem] overflow-hidden flex flex-col h-full bg-white transition-all duration-500 hover:-translate-y-2 ${pkg.accent
-        ? 'ring-2 ring-[#c9a84c] shadow-[0_20px_50px_rgba(201,168,76,0.15)] lg:-translate-y-4 lg:hover:-translate-y-6 z-10'
-        : 'border border-[#c9a84c]/15 shadow-xl shadow-stone-200/50 hover:shadow-2xl hover:shadow-stone-200/80'
-        }`}
+      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.21, 0.47, 0.32, 0.98] }}
+      className={`relative group flex flex-col h-full bg-white transition-all duration-700 rounded-t-[14rem] rounded-b-[2.5rem] p-3 sm:p-4 ${
+        isMiddle
+          ? 'ring-1 ring-[#c9a84c] shadow-[0_20px_60px_rgba(201,168,76,0.15)] lg:scale-[1.03] z-10 lg:-translate-y-4 hover:-translate-y-6'
+          : 'border border-stone-200 shadow-xl shadow-stone-200/50 hover:shadow-2xl hover:shadow-stone-200/80 z-0 hover:-translate-y-2 lg:mt-4'
+      }`}
     >
-      {/* Badge */}
-      {pkg.badge && (
-        <div className={`absolute top-5 right-5 z-20 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide shadow-lg backdrop-blur-md ${pkg.accent ? 'bg-gold text-white' : 'bg-white/90 text-gold'
-          }`}>
-          {pkg.badge}
-        </div>
-      )}
-
-      {/* Image Section */}
-      <div className="relative h-64 sm:h-72 w-full overflow-hidden shrink-0">
-        <div className="absolute inset-0 bg-[#c9a84c]/10 mix-blend-overlay z-10 transition-opacity group-hover:opacity-0" />
+      {/* Arch Image Section */}
+      <div className="relative h-72 sm:h-80 lg:h-96 w-full overflow-hidden shrink-0 rounded-t-full rounded-b-3xl">
+        <div className="absolute inset-0 bg-[#c9a84c]/10 mix-blend-overlay z-10 transition-opacity duration-700 group-hover:opacity-0" />
         <img
           src={pkg.image}
           alt={pkg.name}
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900/90 via-stone-900/20 to-transparent z-10" />
 
-        {/* Islamic pattern subtle overlay */}
-        <div className="absolute inset-0 opacity-20 mix-blend-overlay z-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M20 0L40 20L20 40L0 20Z' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E")`,
-        }} />
-
-        <div className="absolute bottom-6 left-6 z-20 w-[calc(100%-3rem)]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="bg-[#c9a84c]/90 text-white text-[10px] uppercase tracking-widest px-2 py-0.5 rounded backdrop-blur-sm">
-              {pkg.duration}
-            </span>
+        {/* Badge */}
+        {pkg.badge && (
+          <div className={`absolute top-6 left-1/2 -translate-x-1/2 z-20 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg backdrop-blur-md whitespace-nowrap ${
+            isMiddle ? 'bg-[#c9a84c] text-white' : 'bg-white/95 text-stone-900'
+          }`}>
+            {pkg.badge}
           </div>
-          <h3 className="font-serif text-3xl sm:text-4xl text-white font-medium leading-tight">
+        )}
+
+        <div className="absolute bottom-6 left-0 w-full text-center z-20 px-6">
+          <span className="inline-block bg-[#c9a84c] text-white text-[10px] font-bold uppercase tracking-[0.25em] px-3 py-1.5 rounded-full mb-4 shadow-md">
+            {pkg.duration}
+          </span>
+          <h3 className="font-serif text-3xl sm:text-4xl text-white font-medium leading-tight drop-shadow-lg">
             {pkg.name}
           </h3>
         </div>
       </div>
 
       {/* Content Section */}
-      <div className="p-6 sm:p-8 flex-grow flex flex-col bg-gradient-to-b from-white to-[#faf9f7]">
-        <div className="flex items-end justify-between mb-6 pb-6 border-b border-[#c9a84c]/10">
-          <div>
-            <p className="text-sm text-stone-500 font-medium mb-1">Starting from</p>
-            <div className="font-serif text-3xl font-semibold text-gold">
-              {pkg.price}
+      <div className="px-4 sm:px-6 pt-8 pb-4 flex-grow flex flex-col">
+        <div className="flex flex-col items-center justify-center mb-8 pb-8 border-b border-stone-100">
+          <p className="text-[10px] text-stone-400 font-bold uppercase tracking-[0.2em] mb-2">Starting from</p>
+          <div className="font-serif text-4xl sm:text-5xl font-semibold text-[#c9a84c]">
+            {pkg.price}
+          </div>
+        </div>
+
+        <div className="space-y-5 mb-10 flex-grow px-2">
+          <div className="flex items-start gap-4">
+            <div className="mt-0.5 p-2 rounded-full bg-[#c9a84c]/10"><Hotel size={16} className="text-[#c9a84c]" /></div>
+            <div>
+              <p className="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-1">Accommodation</p>
+              <p className="text-sm text-stone-700 font-medium leading-snug">{pkg.hotel}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="mt-0.5 p-2 rounded-full bg-[#c9a84c]/10"><Plane size={16} className="text-[#c9a84c]" /></div>
+            <div>
+              <p className="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-1">Transport</p>
+              <p className="text-sm text-stone-700 font-medium leading-snug">{pkg.flight}</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4 mb-8 flex-grow">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-full bg-[#c9a84c]/10 shrink-0">
-              <Hotel size={18} className="text-gold" />
-            </div>
-            <div>
-              <p className="text-xs text-stone-400 uppercase tracking-wider font-semibold mb-0.5">Accommodation</p>
-              <p className="text-sm text-stone-700 font-medium">{pkg.hotel}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-full bg-[#c9a84c]/10 shrink-0">
-              <Plane size={18} className="text-gold" />
-            </div>
-            <div>
-              <p className="text-xs text-stone-400 uppercase tracking-wider font-semibold mb-0.5">Transport</p>
-              <p className="text-sm text-stone-700 font-medium">{pkg.flight}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-8">
-          <p className="text-xs font-semibold text-stone-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Shield size={14} className="text-gold" />
+        <div className="mb-10 px-2">
+          <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-4 flex items-center justify-center gap-2">
+            <Shield size={14} className="text-[#c9a84c]" />
             Package Includes
           </p>
-          <ul className="space-y-2.5">
+          <ul className="space-y-3">
             {pkg.includes.map(item => (
-              <li key={item} className="flex items-start gap-3">
-                <Check size={16} className="text-gold mt-0.5 shrink-0" strokeWidth={3} />
-                <span className="text-sm text-stone-600">{item}</span>
+              <li key={item} className="flex items-center gap-3">
+                <Check size={14} className="text-[#c9a84c] shrink-0" strokeWidth={3} />
+                <span className="text-sm text-stone-600 font-medium">{item}</span>
               </li>
             ))}
           </ul>
         </div>
 
         <a
-          href="https://wa.me/1234567890?text=I'm%20interested%20in%20the%20Umrah%20package"
+          href={`https://wa.me/1234567890?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.name)}%20package`}
           target="_blank"
           rel="noopener noreferrer"
-          className={`mt-auto w-full group flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-semibold transition-all duration-300 ${pkg.accent
-            ? 'btn-gold'
-            : 'bg-stone-900 text-white hover:bg-stone-800 shadow-lg hover:shadow-xl'
-            }`}
+          className={`mt-auto w-full group flex items-center justify-center gap-2 py-4 rounded-2xl text-xs sm:text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+            isMiddle
+              ? 'bg-gradient-to-r from-[#c9a84c] to-[#e8c97a] text-white shadow-[0_8px_20px_rgba(201,168,76,0.3)] hover:shadow-[0_12px_25px_rgba(201,168,76,0.4)]'
+              : 'bg-stone-900 text-white shadow-lg hover:bg-[#c9a84c] hover:shadow-[0_8px_20px_rgba(201,168,76,0.3)]'
+          }`}
         >
-          <MessageCircle size={18} className={pkg.accent ? 'text-white/90' : 'text-gold'} />
-          <span>Inquire via WhatsApp</span>
-          <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+          <span>Inquire Now</span>
+          <MessageCircle size={16} className="transition-transform group-hover:scale-110" />
         </a>
       </div>
     </motion.div>
@@ -158,7 +148,7 @@ export default function Umrah() {
   const inView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section id="umrah" className="pt-12 pb-24 lg:pt-16 lg:pb-32 relative overflow-hidden bg-[#faf9f7]">
+    <section id="umrah" className="pt-12 pb-12 lg:pt-20 lg:pb-24 relative overflow-hidden bg-[#faf9f7]">
       {/* Background Decor */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-gradient-to-b from-[#c9a84c]/5 to-transparent blur-[120px]" />
@@ -173,15 +163,15 @@ export default function Umrah() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center mb-16 lg:mb-24"
         >
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-[#c9a84c]/20 shadow-sm mb-6">
-            <Star size={14} className="text-gold fill-gold" />
-            <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-gold">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-[#c9a84c]/20 shadow-sm mb-6">
+            <Star size={14} className="text-[#c9a84c] fill-[#c9a84c]" />
+            <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-[#c9a84c]">
               Premium Sacred Journeys
             </span>
-            <Star size={14} className="text-gold fill-gold" />
+            <Star size={14} className="text-[#c9a84c] fill-[#c9a84c]" />
           </div>
 
-          <div className="text-gold font-serif text-4xl mb-4 opacity-80">﷽</div>
+          <div className="text-[#c9a84c] font-serif text-4xl mb-4 opacity-80">﷽</div>
 
           <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-medium text-stone-900 mb-6 tracking-tight">
             Exclusive Umrah <span className="shimmer-text italic">Packages</span>
@@ -189,12 +179,9 @@ export default function Umrah() {
           <p className="font-sans text-stone-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
             Embark on the most sacred journey of your life with our meticulously curated Umrah packages. Experience spiritual depth with uncompromising luxury and comfort.
           </p>
-
-          <div className="flex justify-center mt-10">
-            <div className="gold-divider" />
-          </div>
         </motion.div>
 
+        {/* The New Arch Podium Layout */}
         <div className="flex flex-wrap justify-center gap-8 lg:gap-10 items-stretch max-w-7xl mx-auto">
           {packages.map((pkg, i) => (
             <div key={pkg.name} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.7rem)] max-w-[450px] lg:max-w-none">
@@ -208,16 +195,16 @@ export default function Umrah() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-20 lg:mt-28 grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          className="mt-20 lg:mt-32 grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto"
         >
           {[
-            { icon: Shield, title: 'Approved Agency', desc: 'Ministry of Umrah' },
-            { icon: Star, title: 'Trusted Service', desc: 'Comfortable Umrah Packages' },
-            { icon: Hotel, title: 'Premium Partners', desc: '5-Star Accommodation' },
+            { icon: Shield, title: 'Ministry Approved', desc: 'Licensed Umrah Agency' },
+            { icon: Star, title: 'Premium Service', desc: 'Uncompromising Quality' },
+            { icon: Hotel, title: 'Luxury Stays', desc: '5-Star Haram View Hotels' },
           ].map((badge, i) => (
-            <div key={i} className="flex flex-col items-center text-center p-8 rounded-3xl bg-white/60 backdrop-blur-md border border-stone-200/60 hover:border-[#c9a84c]/30 hover:bg-white transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1">
-              <div className="w-14 h-14 rounded-full bg-[#c9a84c]/10 flex items-center justify-center mb-5">
-                <badge.icon size={28} className="text-gold" />
+            <div key={i} className="flex flex-col items-center text-center p-8 rounded-3xl bg-white border border-[#c9a84c]/15 hover:border-[#c9a84c]/40 transition-all duration-300 shadow-xl shadow-stone-100 hover:shadow-2xl hover:-translate-y-1">
+              <div className="w-16 h-16 rounded-full bg-[#c9a84c]/10 flex items-center justify-center mb-6">
+                <badge.icon size={28} className="text-[#c9a84c]" />
               </div>
               <h4 className="font-serif text-xl font-medium text-stone-900 mb-2">{badge.title}</h4>
               <p className="text-sm text-stone-500">{badge.desc}</p>

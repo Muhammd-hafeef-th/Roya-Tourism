@@ -1,75 +1,160 @@
-import { Globe, Instagram, Facebook, Twitter, Youtube, Mail, Phone } from 'lucide-react';
+import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Footer() {
-  const links = {
-    Company: ['About Us', 'Our Team', 'Careers', 'Press'],
-    Services: ['Umrah Packages', 'Hajj Packages', 'International Tours', 'Visa Support'],
-    Destinations: ['Dubai', 'Maldives', 'Turkey', 'Thailand', 'Europe', 'Bali'],
-    Support: ['Contact Us', 'FAQ', 'Travel Insurance', 'Terms & Conditions'],
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
+  const handleNav = (href: string) => {
+    // If it's a page route, just navigate directly
+    if (href.startsWith('/')) {
+      navigate(href);
+      return;
+    }
+
+    if (isHome) {
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/' + href);
+    }
   };
 
   return (
-    <footer style={{ background: '#1a1510' }} className="text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-8">
-        {/* Top */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-6 gap-10 mb-14">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-full btn-gold flex items-center justify-center shadow-gold-sm">
-                <Globe size={18} className="text-white" />
+    <footer className="bg-stone-950 relative overflow-hidden pt-20 pb-10 lg:pt-28 lg:pb-12 border-t border-stone-800">
+      {/* Giant Watermark Background */}
+      <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-[25vw] font-serif font-bold text-white/[0.02] whitespace-nowrap select-none pointer-events-none tracking-tighter">
+         ROYA
+      </div>
+      
+      {/* Subtle Top Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-[300px] bg-gradient-to-b from-[#c9a84c]/5 to-transparent blur-[120px] pointer-events-none" />
+
+      <div className="container-responsive max-w-[1400px] relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
+          
+          {/* Brand Column (Spans 4) */}
+          <div className="lg:col-span-4 lg:pr-12">
+            <button onClick={() => handleNav('#hero')} className="flex items-center gap-4 group mb-8">
+              <img src="/logo1.png" alt="Roya Tourism" className="w-14 h-14 object-contain group-hover:-rotate-12 transition-transform duration-700" />
+              <div className="flex flex-col text-left">
+                <span className="font-serif text-3xl sm:text-4xl font-medium text-white tracking-wider leading-none">Roya</span>
+                <span className="text-[10px] font-sans tracking-[0.4em] uppercase text-[#c9a84c] mt-2">Tourism</span>
               </div>
-              <div>
-                <div className="font-serif text-xl font-semibold text-white">Roya Travels</div>
-                <div className="section-tag text-[0.6rem]" style={{ color: '#c9a84c' }}>PREMIUM TRAVEL AGENCY</div>
-              </div>
-            </div>
-            <p className="font-sans text-sm text-white/50 leading-relaxed mb-6">
-              Crafting extraordinary journeys across the globe since 2009. From sacred spiritual experiences to luxury getaways — your world awaits.
+            </button>
+            <p className="font-sans text-sm sm:text-base text-white/50 leading-relaxed mb-8 max-w-sm">
+              Crafting extraordinary journeys across the globe. From sacred spiritual experiences to unparalleled luxury getaways — your world awaits.
             </p>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
               {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
-                <button
-                  key={i}
-                  className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:border-gold-500 hover:text-gold-400 transition-all duration-300"
+                <a 
+                  key={i} 
+                  href="#"
+                  className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-stone-900 hover:bg-[#c9a84c] hover:border-[#c9a84c] transition-all duration-400 shadow-sm"
                 >
-                  <Icon size={15} />
-                </button>
+                  <Icon size={18} />
+                </a>
               ))}
             </div>
           </div>
 
-          {/* Links */}
-          {Object.entries(links).map(([section, items]) => (
-            <div key={section}>
-              <div className="section-tag mb-4" style={{ color: '#c9a84c' }}>{section}</div>
-              <ul className="space-y-2.5">
-                {items.map(item => (
-                  <li key={item}>
-                    <button className="font-sans text-sm text-white/50 hover:text-white transition-colors duration-200 text-left">
-                      {item}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+          {/* Spacer for desktop */}
+          <div className="hidden lg:block lg:col-span-1"></div>
+
+          {/* Links 1 (Spans 2) */}
+          <div className="lg:col-span-2">
+            <h4 className="text-[11px] font-bold tracking-[0.25em] uppercase text-white mb-6 flex items-center gap-3">
+              <span className="w-6 h-px bg-[#c9a84c]/50"></span> Journeys
+            </h4>
+            <ul className="space-y-4">
+              {[
+                { label: 'Umrah Packages', href: '#umrah' },
+                { label: 'Hajj Packages', href: '#umrah' },
+                { label: 'Global Escapes', href: '#packages' },
+                { label: 'Oman Signature', href: '/international-trips' },
+              ].map((link) => (
+                <li key={link.label}>
+                  <button 
+                    onClick={() => handleNav(link.href)}
+                    className="text-sm text-white/50 hover:text-[#c9a84c] transition-colors text-left"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Links 2 (Spans 2) */}
+          <div className="lg:col-span-2">
+            <h4 className="text-[11px] font-bold tracking-[0.25em] uppercase text-white mb-6 flex items-center gap-3">
+              <span className="w-6 h-px bg-[#c9a84c]/50"></span> Company
+            </h4>
+            <ul className="space-y-4">
+              {[
+                { label: 'About Roya', href: '#about' },
+                { label: 'Travel Gallery', href: '#gallery' },
+                { label: 'Contact Us', href: '#contact' },
+                { label: 'Privacy Policy', href: '#' },
+              ].map((link) => (
+                <li key={link.label}>
+                  <button 
+                    onClick={() => handleNav(link.href)}
+                    className="text-sm text-white/50 hover:text-white transition-colors text-left"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact (Spans 3) */}
+          <div className="lg:col-span-3">
+            <h4 className="text-[11px] font-bold tracking-[0.25em] uppercase text-white mb-6 flex items-center gap-3">
+              <span className="w-6 h-px bg-[#c9a84c]/50"></span> Get in Touch
+            </h4>
+            <div className="space-y-6">
+              <a href="tel:+1234567890" className="flex items-start gap-4 group">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c]/20 transition-colors">
+                  <Phone size={16} className="text-[#c9a84c]" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Call Us</p>
+                  <p className="text-sm sm:text-base font-medium text-white/80 group-hover:text-white transition-colors">+1 234 567 890</p>
+                </div>
+              </a>
+              <a href="mailto:hello@royatourism.com" className="flex items-start gap-4 group">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c]/20 transition-colors">
+                  <Mail size={16} className="text-[#c9a84c]" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Email Us</p>
+                  <p className="text-sm sm:text-base font-medium text-white/80 group-hover:text-white transition-colors">hello@royatourism.com</p>
+                </div>
+              </a>
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                  <MapPin size={16} className="text-[#c9a84c]" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Office</p>
+                  <p className="text-sm text-white/80 leading-relaxed">123 Luxury Ave, Suite 400<br/>Dubai, UAE</p>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
+
         </div>
 
-        {/* Bottom */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/10 pt-8">
-          <p className="font-sans text-sm text-white/35">
-            © 2024 Roya Travels. All rights reserved. Crafted with passion.
+        {/* Bottom Copyright Row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/10">
+          <p className="text-xs text-white/40 tracking-wider">
+            © {new Date().getFullYear()} Roya Tourism. All rights reserved.
           </p>
-          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
-            <a href="tel:+1234567890" className="flex items-center gap-2 font-sans text-sm text-white/50 hover:text-gold-400 transition-colors">
-              <Phone size={13} />
-              +1 234 567 890
-            </a>
-            <a href="mailto:hello@royatravels.com" className="flex items-center gap-2 font-sans text-sm text-white/50 hover:text-gold-400 transition-colors">
-              <Mail size={13} />
-              hello@royatravels.com
-            </a>
+          <div className="flex items-center gap-6">
+            <a href="#" className="text-xs text-white/40 hover:text-[#c9a84c] transition-colors">Terms of Service</a>
+            <a href="#" className="text-xs text-white/40 hover:text-[#c9a84c] transition-colors">Privacy Policy</a>
           </div>
         </div>
       </div>

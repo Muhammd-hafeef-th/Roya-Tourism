@@ -1,195 +1,90 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { MapPin, Clock, Hotel, Plane, Star, MessageCircle, ChevronRight } from 'lucide-react';
+import { Clock, Hotel, Plane, ArrowRight, Compass } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { internationalPackages } from '../data/packagesData';
 
-const packages = [
-  {
-    destination: 'Dubai',
-    country: 'UAE',
-    duration: '5 Days / 4 Nights',
-    price: '$899',
-    priceNote: 'per person',
-    stars: 5,
-    hotel: 'Burj Al Arab or similar',
-    flight: 'Economy — Direct',
-    description: 'Experience the pinnacle of modern luxury in the City of Gold — iconic skylines, desert adventures, and world-class shopping.',
-    highlights: ['Desert Safari', 'Burj Khalifa', 'Gold Souk', 'Dhow Cruise'],
-    image: 'https://images.pexels.com/photos/2115367/pexels-photo-2115367.jpeg?auto=compress&cs=tinysrgb&w=700',
-    badge: 'Best Seller',
-  },
-  {
-    destination: 'Maldives',
-    country: 'South Asia',
-    duration: '7 Days / 6 Nights',
-    price: '$2,499',
-    priceNote: 'per person',
-    stars: 5,
-    hotel: 'Overwater Bungalow',
-    flight: 'Business — Seaplane Transfer',
-    description: 'Surrender to paradise in the crystal-clear waters of the Indian Ocean — white sands, coral reefs, and unmatched serenity.',
-    highlights: ['Overwater Villa', 'Snorkeling', 'Spa Retreat', 'Sunset Cruise'],
-    image: 'https://images.pexels.com/photos/1287460/pexels-photo-1287460.jpeg?auto=compress&cs=tinysrgb&w=700',
-    badge: 'Top Luxury',
-  },
-  {
-    destination: 'Turkey',
-    country: 'Europe / Asia',
-    duration: '8 Days / 7 Nights',
-    price: '$1,199',
-    priceNote: 'per person',
-    stars: 4,
-    hotel: '4-Star Heritage Hotel',
-    flight: 'Economy — Connecting',
-    description: 'Walk through millennia of history in Istanbul, float over Cappadocia in a hot-air balloon, and soak in Turkish culture.',
-    highlights: ['Cappadocia Balloon', 'Hagia Sophia', 'Bosphorus Cruise', 'Grand Bazaar'],
-    image: 'https://images.pexels.com/photos/1549326/pexels-photo-1549326.jpeg?auto=compress&cs=tinysrgb&w=700',
-    badge: 'Cultural Gem',
-  },
-  {
-    destination: 'Thailand',
-    country: 'Southeast Asia',
-    duration: '9 Days / 8 Nights',
-    price: '$1,099',
-    priceNote: 'per person',
-    stars: 4,
-    hotel: 'Beachfront Resort',
-    flight: 'Economy — Direct',
-    description: 'Discover tropical paradise, ancient temples, vibrant street markets, and pristine island beaches across Thailand.',
-    highlights: ['Phi Phi Islands', 'Grand Palace', 'Street Food Tour', 'Elephant Sanctuary'],
-    image: 'https://images.pexels.com/photos/1007426/pexels-photo-1007426.jpeg?auto=compress&cs=tinysrgb&w=700',
-    badge: 'Family Favourite',
-  },
-  {
-    destination: 'Europe',
-    country: 'Multi-Country',
-    duration: '14 Days / 13 Nights',
-    price: '$3,299',
-    priceNote: 'per person',
-    stars: 4,
-    hotel: 'Boutique Hotels',
-    flight: 'Economy — Multi-City',
-    description: 'A grand tour through the cultural capitals of Europe — Paris, Rome, Amsterdam, and more — a journey through time and art.',
-    highlights: ['Eiffel Tower', 'Colosseum', 'Swiss Alps', 'Canal Cruise'],
-    image: 'https://images.pexels.com/photos/532826/pexels-photo-532826.jpeg?auto=compress&cs=tinysrgb&w=700',
-    badge: 'Grand Tour',
-  },
-  {
-    destination: 'Bali',
-    country: 'Indonesia',
-    duration: '8 Days / 7 Nights',
-    price: '$1,349',
-    priceNote: 'per person',
-    stars: 5,
-    hotel: 'Villa with Private Pool',
-    flight: 'Economy — Connecting',
-    description: 'Immerse yourself in the Island of the Gods — terraced rice fields, ancient temples, world-class wellness, and vibrant culture.',
-    highlights: ['Ubud Jungle', 'Tanah Lot', 'Private Villa', 'Sunset Seminyak'],
-    image: 'https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&cs=tinysrgb&w=700',
-    badge: 'Wellness Retreat',
-  },
-];
-
-function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number }) {
+function BentoCard({ pkg, index, isLarge }: { pkg: typeof internationalPackages[0]; index: number; isLarge?: boolean }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [hovered, setHovered] = useState(false);
+  const inView = useInView(ref, { once: true, margin: '-50px' });
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="group relative rounded-3xl overflow-hidden bg-white shadow-luxury card-hover cursor-pointer"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      initial={{ opacity: 0, scale: 0.96, y: 30 }}
+      animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.21, 0.47, 0.32, 0.98] }}
+      className="group relative w-full h-full rounded-[2rem] overflow-hidden shadow-2xl cursor-pointer"
+      onClick={() => window.open(`https://wa.me/1234567890?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.destination)}%20package`, '_blank')}
     >
-      {/* Image */}
-      <div className="relative h-56 overflow-hidden">
-        <motion.img
-          src={pkg.image}
-          alt={pkg.destination}
-          className="w-full h-full object-cover"
-          animate={{ scale: hovered ? 1.07 : 1 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+      {/* Background Image */}
+      <img
+        src={pkg.image}
+        alt={pkg.destination}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+      />
+      
+      {/* Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-t from-stone-900/95 via-stone-900/40 to-transparent transition-opacity duration-700" />
+      <div className="absolute inset-0 bg-[#c9a84c]/20 opacity-0 group-hover:opacity-100 mix-blend-overlay transition-opacity duration-700" />
 
-        {/* Badge */}
+      {/* Top badges */}
+      <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-20">
+        <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg">
+          <Compass size={14} className={pkg.isSpecialized ? "text-[#c9a84c]" : "text-white"} />
+          {pkg.country}
+        </div>
+
         {pkg.badge && (
-          <div className="absolute top-4 left-4 btn-gold px-3 py-1 rounded-full text-xs font-sans shadow-gold-sm">
+          <div className={`px-4 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg ${
+            pkg.isSpecialized ? 'bg-[#c9a84c] text-white' : 'bg-white text-stone-900'
+          }`}>
             {pkg.badge}
           </div>
         )}
-
-        {/* Stars */}
-        <div className="absolute top-4 right-4 flex gap-0.5">
-          {Array.from({ length: pkg.stars }).map((_, i) => (
-            <Star key={i} size={11} fill="#c9a84c" stroke="none" />
-          ))}
-        </div>
-
-        <div className="absolute bottom-4 left-4">
-          <div className="flex items-center gap-1.5 mb-1">
-            <MapPin size={13} className="text-gold-300" />
-            <span className="text-white/80 text-xs font-sans">{pkg.country}</span>
-          </div>
-          <span className="font-serif text-2xl font-semibold text-white">{pkg.destination}</span>
-        </div>
       </div>
 
-      {/* Content */}
-      <div className="p-5">
-        <p className="text-stone-500 font-sans text-sm leading-relaxed mb-4">{pkg.description}</p>
+      {/* Content wrapper */}
+      <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-end z-20">
+        <div className="transform transition-all duration-500 ease-out lg:translate-y-6 group-hover:translate-y-0">
+          
+          {/* Title & Price Row */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
+            <div>
+              <h3 className={`font-serif text-white font-medium leading-[1.1] mb-2 drop-shadow-md ${
+                isLarge ? 'text-4xl sm:text-5xl lg:text-6xl' : 'text-3xl sm:text-4xl'
+              }`}>
+                {pkg.destination}
+              </h3>
+              {isLarge && (
+                <p className="text-white/80 font-sans text-sm sm:text-base max-w-md line-clamp-2 mt-4">
+                  {pkg.description}
+                </p>
+              )}
+            </div>
+            
+            <div className="flex flex-col items-start sm:items-end flex-shrink-0">
+              <span className="text-[10px] uppercase tracking-widest text-white/70 mb-1">From</span>
+              <span className={`font-serif font-semibold text-[#c9a84c] drop-shadow-md ${isLarge ? 'text-4xl' : 'text-3xl'}`}>
+                {pkg.price}
+              </span>
+            </div>
+          </div>
 
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-xs text-stone-500 font-sans">
-            <Clock size={12} className="text-gold-500" />
-            {pkg.duration}
+          {/* Details (Hidden on desktop until hover) */}
+          <div className="grid grid-cols-2 gap-4 pt-5 border-t border-white/20 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 delay-100">
+            <div className="flex items-center gap-2 text-white/90">
+              <Clock size={16} className="text-[#c9a84c]" />
+              <span className="text-xs sm:text-sm font-medium">{pkg.duration}</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/90">
+              <Hotel size={16} className="text-[#c9a84c]" />
+              <span className="text-xs sm:text-sm font-medium truncate">{pkg.hotel}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-stone-500 font-sans">
-            <Hotel size={12} className="text-gold-500" />
-            {pkg.hotel}
-          </div>
-          <div className="flex items-center gap-2 text-xs text-stone-500 font-sans">
-            <Plane size={12} className="text-gold-500" />
-            {pkg.flight}
-          </div>
-        </div>
 
-        {/* Highlights */}
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          {pkg.highlights.map(h => (
-            <span key={h} className="text-[0.65rem] font-sans px-2 py-1 bg-cream-100 text-stone-600 rounded-full border border-cream-300">
-              {h}
-            </span>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="font-serif text-2xl font-semibold text-gold-600">{pkg.price}</span>
-            <span className="text-xs text-stone-400 font-sans ml-1">{pkg.priceNote}</span>
-          </div>
-          <a
-            href={`https://wa.me/1234567890?text=I'm%20interested%20in%20${encodeURIComponent(pkg.destination)}%20package`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 btn-gold px-4 py-2.5 rounded-full text-xs font-sans shadow-gold-sm"
-          >
-            <MessageCircle size={13} />
-            Inquire
-          </a>
         </div>
       </div>
-
-      {/* Hover shine overlay */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        animate={{ opacity: hovered ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
-        style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.03) 0%, transparent 60%)' }}
-      />
     </motion.div>
   );
 }
@@ -198,53 +93,77 @@ export default function Packages() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
 
+  // Only show top 3 packages
+  const displayPackages = internationalPackages.slice(0, 3);
+
   return (
-    <section id="packages" className="py-28"
-      style={{ background: '#faf9f7' }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section id="packages" className="pt-12 pb-24 lg:pt-16 lg:pb-32 relative overflow-hidden bg-stone-900">
+      {/* Background styling to make it VERY distinct from the Umrah section */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-gradient-to-r from-[#c9a84c]/20 to-transparent blur-[120px]" />
+        <div className="absolute bottom-[10%] -right-[10%] w-[30%] h-[30%] rounded-full bg-gradient-to-l from-[#c9a84c]/10 to-transparent blur-[100px]" />
+      </div>
+
+      <div className="container-responsive max-w-[1400px] relative z-10">
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-16 lg:mb-20"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-px bg-gold-400" />
-            <span className="section-tag">Explore the World</span>
-            <div className="w-8 h-px bg-gold-400" />
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+            <Plane size={14} className="text-[#c9a84c]" />
+            <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-white/90">
+              Global Escapes
+            </span>
+            <Plane size={14} className="text-[#c9a84c]" />
           </div>
-          <h2 className="font-serif text-4xl sm:text-5xl font-semibold text-stone-900 mb-4">
-            International <span className="text-gold-600 italic">Packages</span>
+
+          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-6 tracking-tight">
+            International <span className="text-[#c9a84c] italic">Journeys</span>
           </h2>
-          <p className="font-sans text-stone-500 text-base max-w-xl mx-auto leading-relaxed">
-            Handpicked destinations, curated itineraries, and unmatched hospitality — your perfect getaway awaits.
+          <p className="font-sans text-white/60 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            Discover our signature collection of global escapes. Experience unparalleled luxury and curated itineraries across the world.
           </p>
-          <div className="flex justify-center mt-5">
-            <div className="gold-divider" />
-          </div>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
-          {packages.map((pkg, i) => (
-            <PackageCard key={pkg.destination} pkg={pkg} index={i} />
-          ))}
+        {/* Bento Grid Layout - Takes up much less vertical space on laptops! */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-20 lg:mb-24 max-w-6xl mx-auto">
+          {/* Main Feature - spans 2 columns on tablet and desktop, 2 rows on desktop */}
+          <div className="md:col-span-2 lg:row-span-2 h-[450px] md:h-[500px] lg:h-[600px]">
+            <BentoCard pkg={displayPackages[0]} index={0} isLarge />
+          </div>
+          
+          {/* Secondary Feature 1 */}
+          <div className="h-[350px] md:h-[400px] lg:h-[calc(300px-1rem)]">
+            <BentoCard pkg={displayPackages[1]} index={1} />
+          </div>
+
+          {/* Secondary Feature 2 */}
+          <div className="h-[350px] md:h-[400px] lg:h-[calc(300px-1rem)]">
+            <BentoCard pkg={displayPackages[2]} index={2} />
+          </div>
         </div>
 
+        {/* View All Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center mt-12"
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="text-center"
         >
-          <button
-            onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
-            className="btn-outline-gold px-8 py-4 rounded-full font-sans text-sm inline-flex items-center gap-2"
+          <Link 
+            to="/international-trips"
+            className="group inline-flex items-center justify-center gap-4 px-10 py-4 rounded-full bg-[#c9a84c] text-white shadow-[0_10px_30px_rgba(201,168,76,0.25)] hover:shadow-[0_15px_40px_rgba(201,168,76,0.4)] hover:-translate-y-1 transition-all duration-500"
           >
-            View All Packages
-            <ChevronRight size={16} />
-          </button>
+            <span className="font-serif text-xl font-medium tracking-wide">
+              Explore All Destinations
+            </span>
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-[#c9a84c] transition-colors duration-500">
+              <ArrowRight size={20} className="text-white group-hover:text-[#c9a84c] group-hover:translate-x-1 transition-transform duration-300" />
+            </div>
+          </Link>
         </motion.div>
       </div>
     </section>
