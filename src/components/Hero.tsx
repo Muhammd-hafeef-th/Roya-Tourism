@@ -39,7 +39,7 @@ export default function Hero() {
     Instead of just 2D scaling, we use Z-space translation to simulate
     a camera physically moving into the environment. 
   */
-  
+
   // Layer 1: Background Video (Distant)
   // Moves forward in Z-space to engulf the viewer.
   const vidZ = useTransform(p, [0, 1], isMobile ? [0, 200] : [0, 600]);
@@ -59,14 +59,14 @@ export default function Hero() {
 
   // Layer 4: Floating Particles (Foreground)
   const partsZ = useTransform(p, [0, 1], isMobile ? [0, 800] : [0, 1500]);
-  
+
   // Layer 5: Typography (Foreground)
   // Pushes towards the camera, blurring out as it passes "behind" the lens
   const textZ = useTransform(p, [0, 0.4, 0.8], [0, 400, 1200]);
   const textY = useTransform(p, [0, 0.6], ['0%', '-15%']);
   const textOp = useTransform(p, [0, 0.25, 0.55], [1, 1, 0]);
   const textBlur = useTransform(p, [0.35, 0.6], ['blur(0px)', 'blur(20px)']);
-  
+
   // Layer 6: CTAs
   const ctaZ = useTransform(p, [0, 0.4, 0.8], [0, 300, 1000]);
   const ctaY = useTransform(p, [0, 0.5], ['0%', '-10%']);
@@ -106,7 +106,7 @@ export default function Hero() {
 
   const contentPx = isMobile ? 'px-6' : isTablet ? 'px-10' : isTV ? 'px-32' : 'px-16';
   const maxW = isTV ? 'max-w-7xl' : 'max-w-5xl';
-  
+
   return (
     <section id="hero" ref={containerRef} className="relative w-full bg-stone-950" style={{ height: sectionH }}>
       {/* 
@@ -114,9 +114,9 @@ export default function Hero() {
         This wrapper is crucial for the translateZ illusion.
       */}
       <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ perspective: '1200px' }}>
-        
+
         {/* The "Camera" container applying mouse drift */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 w-full h-full"
           style={{ x: isMobile ? 0 : prlX, y: isMobile ? 0 : prlY, transformStyle: 'preserve-3d' }}
         >
@@ -124,11 +124,11 @@ export default function Hero() {
           {/* ══ L1: DISTANT BACKGROUND VIDEO ══ */}
           <motion.div
             className="absolute inset-0 w-full h-full origin-center"
-            style={{ 
-              scale: vidScale, 
-              y: vidY, 
-              z: vidZ, 
-              willChange: 'transform', 
+            style={{
+              scale: vidScale,
+              y: vidY,
+              z: vidZ,
+              willChange: 'transform',
               transformStyle: 'preserve-3d'
             }}
           >
@@ -140,13 +140,13 @@ export default function Hero() {
             >
               <source src="/videos/hero-image-roya.mp4" type="video/mp4" />
             </video>
-            
+
             {/* Base atmospheric color grading */}
             <div className="absolute inset-0 mix-blend-overlay bg-amber-900/10 pointer-events-none" />
           </motion.div>
 
           {/* ══ L2: VOLUMETRIC FOG & ATMOSPHERE (Midground) ══ */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 pointer-events-none"
             style={{ y: fogY, z: fogZ, opacity: fogOp, willChange: 'transform, opacity', transformStyle: 'preserve-3d' }}
           >
@@ -158,7 +158,7 @@ export default function Hero() {
           </motion.div>
 
           {/* ══ L3: CINEMATIC LIGHT RAYS (Mid-Foreground) ══ */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 pointer-events-none"
             style={{ y: raysY, z: raysZ, scale: raysSc, opacity: raysOp, willChange: 'transform, opacity', transformStyle: 'preserve-3d' }}
           >
@@ -176,7 +176,7 @@ export default function Hero() {
 
           {/* ══ L4: DUST PARTICLES (Foreground Depth) ══ */}
           {!isMobile && (
-            <motion.div 
+            <motion.div
               className="absolute inset-0 pointer-events-none"
               style={{ z: partsZ, willChange: 'transform', transformStyle: 'preserve-3d' }}
             >
@@ -198,13 +198,13 @@ export default function Hero() {
           {/* ══ L5: TYPOGRAPHY (Camera Plane) ══ */}
           <motion.div
             className={`absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none ${contentPx}`}
-            style={{ 
-              y: textY, z: textZ, opacity: textOp, filter: textBlur, 
-              willChange: 'transform, opacity, filter', transformStyle: 'preserve-3d' 
+            style={{
+              y: textY, z: textZ, opacity: textOp, filter: textBlur,
+              willChange: 'transform, opacity, filter', transformStyle: 'preserve-3d'
             }}
           >
             <div className={`text-center ${maxW} mx-auto w-full pointer-events-auto`}>
-              
+
               {/* Eyebrow */}
               <motion.div
                 initial={{ opacity: 0, y: 25, filter: 'blur(12px)' }}
@@ -263,15 +263,15 @@ export default function Hero() {
           </motion.div>
 
           {/* ══ L6: CTAs (Slightly closer to camera than text) ══ */}
-          <motion.div 
+          <motion.div
             className="absolute inset-x-0 bottom-[15%] sm:bottom-[18%] lg:bottom-[22%] z-20 flex flex-col items-center pointer-events-none"
-            style={{ 
-              y: ctaY, z: ctaZ, opacity: ctaOp, filter: ctaBlur, 
-              willChange: 'transform, opacity, filter', transformStyle: 'preserve-3d' 
+            style={{
+              y: ctaY, z: ctaZ, opacity: ctaOp, filter: ctaBlur,
+              willChange: 'transform, opacity, filter', transformStyle: 'preserve-3d'
             }}
           >
             <div className={`text-center ${maxW} mx-auto w-full pointer-events-auto`}>
-               <motion.div
+              <motion.div
                 initial={{ opacity: 0, y: 25, filter: 'blur(8px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 1.6, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
@@ -314,7 +314,7 @@ export default function Hero() {
 
         {/* ══ STATIC UI LAYER (Not affected by 3D camera drift) ══ */}
         <div className="absolute inset-0 pointer-events-none z-30">
-          
+
           {/* Cinematic Vignette */}
           <motion.div className="absolute inset-0 pointer-events-none" style={{ opacity: vignetteOp }}>
             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-stone-950/90" />
@@ -356,9 +356,9 @@ export default function Hero() {
           {/* Masked Cinematic Transition to next section */}
           <motion.div
             className="absolute bottom-0 left-0 right-0 h-[30vh] z-[40]"
-            style={{ 
-              opacity: transOp, 
-              background: 'linear-gradient(to top, #faf9f7 0%, rgba(250,249,247,0.9) 20%, rgba(250,249,247,0.4) 60%, transparent 100%)' 
+            style={{
+              opacity: transOp,
+              background: 'linear-gradient(to top, #faf9f7 0%, rgba(250,249,247,0.9) 20%, rgba(250,249,247,0.4) 60%, transparent 100%)'
             }}
           />
         </div>
