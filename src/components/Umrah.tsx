@@ -143,7 +143,7 @@ export default function Umrah() {
   const inView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section id="umrah" className="py-28 relative overflow-hidden"
+    <section id="umrah" className="pt-16 pb-28 lg:pt-20 lg:pb-32 relative overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #faf9f7 0%, #f0ebe0 30%, #f7f3eb 70%, #faf9f7 100%)' }}
     >
       {/* Decorative gold crescent */}

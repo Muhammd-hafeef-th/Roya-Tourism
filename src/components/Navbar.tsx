@@ -15,11 +15,25 @@ const navLinks = [
 /* ─── Scroll threshold helper ─────────────────────────────────── */
 function useScrolled(px = 80) {
   const [scrolled, setScrolled] = useState(false);
+  
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > px);
+    let ticking = false;
+    const h = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const isScrolled = window.scrollY > px;
+          setScrolled(prev => (prev !== isScrolled ? isScrolled : prev));
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    h(); // Initial check
     window.addEventListener('scroll', h, { passive: true });
     return () => window.removeEventListener('scroll', h);
   }, [px]);
+  
   return scrolled;
 }
 

@@ -16,10 +16,19 @@ export default function Hero() {
   const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
-    const upd = () => setVw(window.innerWidth);
-    upd();
-    window.addEventListener('resize', upd);
-    return () => window.removeEventListener('resize', upd);
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const upd = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setVw(window.innerWidth);
+      }, 150);
+    };
+    setVw(window.innerWidth); // Initial set
+    window.addEventListener('resize', upd, { passive: true });
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', upd);
+    };
   }, []);
 
   useEffect(() => { videoRef.current?.play().catch(() => { }); }, []);
@@ -32,7 +41,7 @@ export default function Hero() {
   const sectionH = isMobile ? '200vh' : isTablet ? '250vh' : isTV ? '300vh' : '280vh';
 
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
-  const p = useSpring(scrollYProgress, { stiffness: 45, damping: 22, restDelta: 0.001 });
+  const p = useSpring(scrollYProgress, { stiffness: 35, damping: 18, restDelta: 0.001 });
 
   /* 
     CAMERA 3D ILLUSION
@@ -86,13 +95,29 @@ export default function Hero() {
 
   useEffect(() => {
     if (isMobile || isTablet) return;
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    
+    // Update cached dimensions on resize to avoid reading from window constantly
+    const onResize = () => {
+      w = window.innerWidth;
+      h = window.innerHeight;
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+
     const fn = (e: MouseEvent) => {
-      animate(curX, (e.clientX / window.innerWidth - 0.5) * 40, { duration: 1.5, ease: 'easeOut' });
-      animate(curY, (e.clientY / window.innerHeight - 0.5) * 25, { duration: 1.5, ease: 'easeOut' });
+      // Direct assignment: useSpring already interpolates smoothly. 
+      // Using animate() inside mousemove causes redundant loops and battery drain.
+      curX.set((e.clientX / w - 0.5) * 40);
+      curY.set((e.clientY / h - 0.5) * 25);
     };
     window.addEventListener('mousemove', fn, { passive: true });
-    return () => window.removeEventListener('mousemove', fn);
-  }, [isMobile, isTablet]);
+    
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousemove', fn);
+    };
+  }, [isMobile, isTablet, curX, curY]);
 
   /* Responsive typography */
   const headlineSize = isMobile ? 'clamp(2.5rem, 12vw, 3.5rem)' : isTablet ? 'clamp(3.5rem, 8vw, 5.5rem)' : isTV ? 'clamp(7rem, 7vw, 11rem)' : 'clamp(4.5rem, 7vw, 8rem)';
@@ -136,7 +161,7 @@ export default function Hero() {
               className="w-full h-full object-cover object-center"
               style={{ transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' }}
               autoPlay muted loop playsInline preload="auto"
-              onCanPlayThrough={() => setVideoReady(true)}
+              onLoadedData={() => setVideoReady(true)}
             >
               <source src="/videos/hero-image-roya.mp4" type="video/mp4" />
             </video>

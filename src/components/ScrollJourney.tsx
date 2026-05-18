@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { CalendarCheck, Map, Plane, ShieldCheck } from 'lucide-react';
 
 const steps = [
@@ -36,14 +36,21 @@ export default function ScrollJourney() {
     offset: ['start end', 'end start'],
   });
 
-  const rotateX = useTransform(scrollYProgress, [0, 0.45, 1], [8, 0, -6]);
-  const rotateZ = useTransform(scrollYProgress, [0, 0.5, 1], [-4, 0, 4]);
-  const y = useTransform(scrollYProgress, [0, 1], [60, -50]);
-  const planeX = useTransform(scrollYProgress, [0, 1], ['-12%', '112%']);
-  const planeY = useTransform(scrollYProgress, [0, 0.5, 1], [40, -12, 24]);
+  // Apply spring physics to raw scroll value for buttery smooth interpolation
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 35,
+    damping: 18,
+    restDelta: 0.001
+  });
+
+  const rotateX = useTransform(smoothProgress, [0, 0.45, 1], [8, 0, -6]);
+  const rotateZ = useTransform(smoothProgress, [0, 0.5, 1], [-4, 0, 4]);
+  const y = useTransform(smoothProgress, [0, 1], [60, -50]);
+  const planeX = useTransform(smoothProgress, [0, 1], ['-12%', '112%']);
+  const planeY = useTransform(smoothProgress, [0, 0.5, 1], [40, -12, 24]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden py-20 sm:py-28 lg:py-32">
+    <section ref={ref} className="relative overflow-hidden pt-20 pb-10 sm:pt-28 sm:pb-12 lg:pt-32 lg:pb-12">
       <div className="absolute inset-0 travel-grid opacity-70" />
       <div className="absolute left-1/2 top-10 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-gold-300/15 blur-3xl" />
 
@@ -52,13 +59,13 @@ export default function ScrollJourney() {
           <div>
             <div className="mb-5 flex items-center gap-3">
               <div className="h-px w-8 bg-gold-400" />
-              <span className="section-tag">3D Travel Flow</span>
+              <span className="section-tag">Travel Flow</span>
             </div>
             <h2 className="font-serif text-4xl font-semibold leading-[1.08] text-stone-950 sm:text-5xl lg:text-6xl">
               Watch your trip move from idea to unforgettable.
             </h2>
             <p className="mt-5 max-w-xl font-sans text-base leading-relaxed text-stone-600 sm:text-lg">
-              A premium travel experience should feel guided from the first message. Scroll through the journey and see how Roya Travels handles every step.
+              A premium travel experience should feel guided from the first message. Scroll through the journey and see how Roya Tourism handles every step.
             </p>
             <div className="mt-8 grid grid-cols-3 gap-3 sm:max-w-md">
               {['Visa help', 'Hotel picks', '24/7 care'].map(item => (
@@ -82,10 +89,10 @@ export default function ScrollJourney() {
 
             <motion.div
               className="relative mx-auto grid max-w-xl gap-5"
-              style={{ 
-                rotateX, 
-                rotateZ, 
-                y, 
+              style={{
+                rotateX,
+                rotateZ,
+                y,
                 transformStyle: 'preserve-3d',
                 transform: 'translateZ(0)',
                 willChange: 'transform',
