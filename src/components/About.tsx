@@ -42,7 +42,7 @@ export default function About() {
   const inView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section id="about" className="pt-10 pb-10 sm:pt-16 sm:pb-16 lg:pt-16 lg:pb-20 xl:pt-20 xl:pb-24 relative overflow-hidden bg-[#faf9f7]">
+    <section id="about" className="pt-10 pb-6 sm:pt-16 sm:pb-8 lg:pt-16 lg:pb-12 xl:pt-20 xl:pb-16 relative overflow-hidden bg-[#faf9f7]">
       {/* Luxurious Background Decorations */}
       <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-stone-100/50 to-transparent pointer-events-none" />
       <div className="absolute -left-40 top-40 w-[600px] h-[600px] rounded-full bg-gold-200/20 blur-[120px] pointer-events-none" />
