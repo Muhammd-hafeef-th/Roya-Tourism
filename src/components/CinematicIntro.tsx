@@ -8,7 +8,7 @@ interface CinematicIntroProps {
 /* Intro visible before exit begins (ms) */
 const INTRO_DURATION = 3200;
 /* Duration of the exit slide animation (ms) */
-const EXIT_DURATION = 1400;
+const EXIT_DURATION = 1100;
 
 /* Brand gold matching index.css */
 const GOLD = '#c9a84c';
@@ -41,7 +41,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
     mass: 1.1,
     restDelta: 0.001
   };
-  
+
   // A slightly looser spring for parallax elements to create that "motion lag"
   const lagTransition = {
     type: 'spring',
@@ -65,14 +65,14 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           {/* ── Main Sliding Surface ── */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center overflow-hidden"
-            style={{ 
+            style={{
               background: 'linear-gradient(160deg, #faf9f7 0%, #f5f0e6 50%, #faf9f7 100%)',
               willChange: 'transform, opacity, filter',
               boxShadow: '20px 0 60px rgba(0,0,0,0.15)'
             }}
             initial={{ x: '0%', scale: 1, filter: 'blur(0px)', opacity: 1 }}
             animate={
-              phase === 'exit' 
+              phase === 'exit'
                 ? { x: '-100%', scale: 0.98, filter: 'blur(4px)', opacity: 0.95 }
                 : { x: '0%', scale: 1, filter: 'blur(0px)', opacity: 1 }
             }
@@ -89,7 +89,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
             />
 
             {/* ── Background Parallax Layer ── */}
-            <motion.div 
+            <motion.div
               className="absolute inset-0"
               animate={phase === 'exit' ? { x: '35%', scale: 1.05 } : { x: '0%', scale: 1 }}
               transition={lagTransition}
@@ -128,7 +128,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
             </motion.div>
 
             {/* ── Content Parallax Layer ── */}
-            <motion.div 
+            <motion.div
               className="relative z-10 flex flex-col items-center text-center px-8 select-none"
               animate={phase === 'exit' ? { x: '18%', opacity: 0 } : { x: '0%', opacity: 1 }}
               transition={{ ...lagTransition, opacity: { duration: 0.7, ease: 'easeIn', delay: 0.1 } }}
@@ -155,7 +155,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 1.6, delay: 0.4, ease }}
               >
-                <motion.div 
+                <motion.div
                   className="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 mb-5"
                   animate={phase === 'exit' ? { x: '25%' } : { x: '0%' }}
                   transition={lagTransition}
@@ -285,11 +285,11 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 key={i}
                 className={`absolute ${pos} w-5 h-5 sm:w-7 sm:h-7 pointer-events-none`}
                 initial={{ opacity: 0 }}
-                animate={{ 
+                animate={{
                   opacity: phase === 'exit' ? 0 : 1,
                   x: phase === 'exit' ? '20px' : '0px'
                 }}
-                transition={{ 
+                transition={{
                   opacity: phase === 'exit' ? { duration: 0.5 } : { delay: 0.7 + i * 0.08, duration: 1 },
                   x: lagTransition
                 }}
