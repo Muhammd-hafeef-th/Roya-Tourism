@@ -6,9 +6,7 @@ interface CinematicIntroProps {
 }
 
 /* Intro visible before exit begins (ms) */
-const INTRO_DURATION = 3200;
-/* Duration of the exit slide animation (ms) */
-const EXIT_DURATION = 1100;
+const INTRO_DURATION = 3000;
 
 /* Brand gold matching index.css */
 const GOLD = '#c9a84c';
@@ -16,67 +14,47 @@ const GOLD_LIGHT = 'rgba(201,168,76,0.18)';
 const GOLD_MID = 'rgba(201,168,76,0.55)';
 
 export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
-  const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const exitTimer = setTimeout(() => setPhase('exit'), INTRO_DURATION);
-    const doneTimer = setTimeout(() => {
+    // Relying on a single timer completely prevents the component from getting "stuck".
+    // AnimatePresence will automatically wait for the exit animation to finish before unmounting.
+    const exitTimer = setTimeout(() => {
       setVisible(false);
-      onComplete();
-    }, INTRO_DURATION + EXIT_DURATION);
-    return () => { clearTimeout(exitTimer); clearTimeout(doneTimer); };
-  }, [onComplete]);
+    }, INTRO_DURATION);
+    return () => clearTimeout(exitTimer);
+  }, []);
 
-  /* Preload hero video silently */
   const preloadRef = useRef<HTMLVideoElement>(null);
 
   const ease = [0.16, 1, 0.3, 1] as const;
-
-  // Cinematic luxury spring for the main surface sliding left
-  const slideTransition = {
-    type: 'spring',
-    damping: 42,
-    stiffness: 95,
-    mass: 1.1,
-    restDelta: 0.001
-  };
-
-  // A slightly looser spring for parallax elements to create that "motion lag"
-  const lagTransition = {
-    type: 'spring',
-    damping: 48,
-    stiffness: 85,
-    mass: 1.4,
-    restDelta: 0.001
-  };
-
-  if (!visible) return null;
+  
+  // Custom exit easing - fast start, extremely smooth deceleration. 
+  // Better than springs which can cause a "stuck" feeling while settling.
+  const exitEase = [0.25, 1, 0.3, 1] as const;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={onComplete}>
       {visible && (
         <motion.div
           key="cinematic-intro"
           className="fixed inset-0 z-[9999] pointer-events-none"
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.4, ease: 'easeOut' } }}
         >
           {/* ── Main Sliding Surface ── */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center overflow-hidden"
-            style={{
+            style={{ 
               background: 'linear-gradient(160deg, #faf9f7 0%, #f5f0e6 50%, #faf9f7 100%)',
               willChange: 'transform, opacity, filter',
-              boxShadow: '20px 0 60px rgba(0,0,0,0.15)'
+              boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
             }}
-            initial={{ x: '0%', scale: 1, filter: 'blur(0px)', opacity: 1 }}
-            animate={
-              phase === 'exit'
-                ? { x: '-100%', scale: 0.98, filter: 'blur(4px)', opacity: 0.95 }
-                : { x: '0%', scale: 1, filter: 'blur(0px)', opacity: 1 }
-            }
-            transition={slideTransition}
+            initial={{ y: '0%', opacity: 1, filter: 'blur(0px)' }}
+            exit={{ 
+              y: '-100%', // Sliding UP is universally elegant and avoids horizontal motion sickness on large screens
+              opacity: 0, 
+              filter: 'blur(8px)',
+              transition: { duration: 1.1, ease: exitEase } 
+            }}
           >
             <video
               ref={preloadRef}
@@ -89,10 +67,9 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
             />
 
             {/* ── Background Parallax Layer ── */}
-            <motion.div
+            <motion.div 
               className="absolute inset-0"
-              animate={phase === 'exit' ? { x: '35%', scale: 1.05 } : { x: '0%', scale: 1 }}
-              transition={lagTransition}
+              exit={{ y: '15%', opacity: 0, transition: { duration: 1.1, ease: exitEase } }}
             >
               <motion.div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -128,10 +105,14 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
             </motion.div>
 
             {/* ── Content Parallax Layer ── */}
-            <motion.div
+            <motion.div 
               className="relative z-10 flex flex-col items-center text-center px-8 select-none"
-              animate={phase === 'exit' ? { x: '18%', opacity: 0 } : { x: '0%', opacity: 1 }}
-              transition={{ ...lagTransition, opacity: { duration: 0.7, ease: 'easeIn', delay: 0.1 } }}
+              exit={{ 
+                y: '20%', // Creates deep parallax lag against the -100% upward slide
+                opacity: 0, 
+                scale: 0.95,
+                transition: { duration: 0.9, ease: exitEase } 
+              }}
             >
               {/* Eyebrow */}
               <motion.div
@@ -148,44 +129,38 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 <div className="h-px w-8 sm:w-14" style={{ background: `linear-gradient(to left, transparent, ${GOLD})` }} />
               </motion.div>
 
-              {/* Logo Parallax */}
+              {/* Logo */}
               <motion.div
-                className="mb-7 sm:mb-8"
+                className="mb-7 sm:mb-8 relative mx-auto w-16 h-16 sm:w-20 sm:h-20"
                 initial={{ opacity: 0, y: 28, filter: 'blur(10px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 1.6, delay: 0.4, ease }}
               >
                 <motion.div
-                  className="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 mb-5"
-                  animate={phase === 'exit' ? { x: '25%' } : { x: '0%' }}
-                  transition={lagTransition}
-                >
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{ border: `1px solid rgba(201,168,76,0.35)` }}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
+                  className="absolute inset-0 rounded-full"
+                  style={{ border: `1px solid rgba(201,168,76,0.35)` }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
+                />
+                <motion.div
+                  className="absolute inset-[6px] rounded-full"
+                  style={{ border: `1px solid rgba(201,168,76,0.20)` }}
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <img
+                    src="/logo.jpeg"
+                    alt="Roya Tourism Logo"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
+                    style={{
+                      boxShadow: `0 4px 20px rgba(201,168,76,0.25), 0 0 0 1px rgba(201,168,76,0.25)`,
+                    }}
                   />
-                  <motion.div
-                    className="absolute inset-[6px] rounded-full"
-                    style={{ border: `1px solid rgba(201,168,76,0.20)` }}
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <img
-                      src="/logo.jpeg"
-                      alt="Roya Tourism Logo"
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
-                      style={{
-                        boxShadow: `0 4px 20px rgba(201,168,76,0.25), 0 0 0 1px rgba(201,168,76,0.25)`,
-                      }}
-                    />
-                  </div>
-                </motion.div>
+                </div>
               </motion.div>
 
-              {/* Brand Name Parallax */}
+              {/* Brand Name */}
               <motion.h1
                 className="font-serif font-light leading-none mb-2 sm:mb-3"
                 style={{
@@ -197,25 +172,20 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 1.8, delay: 0.65, ease }}
               >
-                <motion.div
-                  animate={phase === 'exit' ? { x: '12%' } : { x: '0%' }}
-                  transition={lagTransition}
+                Roya{' '}
+                <span
+                  className="italic"
+                  style={{
+                    background: `linear-gradient(120deg, #b8963e 0%, #d4a843 35%, #c9a84c 60%, #b8963e 100%)`,
+                    backgroundSize: '200% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'shimmer 5s linear infinite',
+                  }}
                 >
-                  Roya{' '}
-                  <span
-                    className="italic"
-                    style={{
-                      background: `linear-gradient(120deg, #b8963e 0%, #d4a843 35%, #c9a84c 60%, #b8963e 100%)`,
-                      backgroundSize: '200% auto',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      animation: 'shimmer 5s linear infinite',
-                    }}
-                  >
-                    Tourism
-                  </span>
-                </motion.div>
+                  Tourism
+                </span>
               </motion.h1>
 
               <motion.div
@@ -240,12 +210,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 1.6, delay: 1.25, ease }}
               >
-                <motion.div
-                  animate={phase === 'exit' ? { x: '6%' } : { x: '0%' }}
-                  transition={lagTransition}
-                >
-                  Luxury Journeys Beyond Horizons
-                </motion.div>
+                Luxury Journeys Beyond Horizons
               </motion.p>
 
               {/* Progress Bar */}
@@ -253,8 +218,8 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 className="mt-12 sm:mt-14 relative overflow-hidden rounded-full"
                 style={{ width: 'clamp(80px, 15vw, 120px)', height: '1.5px', background: 'rgba(201,168,76,0.18)' }}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: phase === 'exit' ? 0 : 1 }}
-                transition={phase === 'exit' ? { duration: 0.3 } : { delay: 1.55, duration: 0.8 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.55, duration: 0.8 }}
               >
                 <motion.div
                   className="absolute inset-y-0 left-0 rounded-full"
@@ -272,8 +237,8 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 className="mt-3 font-sans font-light text-stone-400 uppercase tracking-[0.3em]"
                 style={{ fontSize: '0.5rem' }}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: phase === 'exit' ? 0 : 1 }}
-                transition={phase === 'exit' ? { duration: 0.3 } : { delay: 1.8, duration: 0.8 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.8, duration: 0.8 }}
               >
                 Preparing your journey
               </motion.p>
@@ -285,14 +250,9 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 key={i}
                 className={`absolute ${pos} w-5 h-5 sm:w-7 sm:h-7 pointer-events-none`}
                 initial={{ opacity: 0 }}
-                animate={{
-                  opacity: phase === 'exit' ? 0 : 1,
-                  x: phase === 'exit' ? '20px' : '0px'
-                }}
-                transition={{
-                  opacity: phase === 'exit' ? { duration: 0.5 } : { delay: 0.7 + i * 0.08, duration: 1 },
-                  x: lagTransition
-                }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, y: '10px', transition: { duration: 0.6 } }}
+                transition={{ delay: 0.7 + i * 0.08, duration: 1 }}
               >
                 <div
                   className={`absolute ${i < 2 ? 'top-0' : 'bottom-0'} ${i % 2 === 0 ? 'left-0' : 'right-0'} w-full h-px`}
