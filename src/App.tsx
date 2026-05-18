@@ -6,7 +6,6 @@ import ScrollJourney from './components/ScrollJourney';
 import About from './components/About';
 import Umrah from './components/Umrah';
 import Packages from './components/Packages';
-import Destinations from './components/Destinations';
 import Gallery from './components/Gallery';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
@@ -24,8 +23,7 @@ function App() {
       {/* Main site — rendered beneath intro so video preloads immediately */}
       <div
         style={{
-          opacity: introComplete ? 1 : 0,
-          transition: 'opacity 0.6s ease',
+          opacity: 1,
           pointerEvents: introComplete ? 'auto' : 'none',
         }}
       >
@@ -35,7 +33,6 @@ function App() {
         <About />
         <Umrah />
         <Packages />
-        <Destinations />
         <Gallery />
         <Testimonials />
         <Contact />
