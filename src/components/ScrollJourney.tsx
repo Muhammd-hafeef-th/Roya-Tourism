@@ -36,11 +36,11 @@ export default function ScrollJourney() {
     offset: ['start end', 'end start'],
   });
 
-  const rotateX = useTransform(scrollYProgress, [0, 0.45, 1], [18, 0, -16]);
-  const rotateZ = useTransform(scrollYProgress, [0, 0.5, 1], [-8, 0, 8]);
-  const y = useTransform(scrollYProgress, [0, 1], [90, -80]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.45, 1], [8, 0, -6]);
+  const rotateZ = useTransform(scrollYProgress, [0, 0.5, 1], [-4, 0, 4]);
+  const y = useTransform(scrollYProgress, [0, 1], [60, -50]);
   const planeX = useTransform(scrollYProgress, [0, 1], ['-12%', '112%']);
-  const planeY = useTransform(scrollYProgress, [0, 0.5, 1], [60, -18, 36]);
+  const planeY = useTransform(scrollYProgress, [0, 0.5, 1], [40, -12, 24]);
 
   return (
     <section ref={ref} className="relative overflow-hidden py-20 sm:py-28 lg:py-32">
@@ -62,14 +62,14 @@ export default function ScrollJourney() {
             </p>
             <div className="mt-8 grid grid-cols-3 gap-3 sm:max-w-md">
               {['Visa help', 'Hotel picks', '24/7 care'].map(item => (
-                <div key={item} className="rounded-2xl border border-gold-200 bg-white/70 px-3 py-4 text-center shadow-soft backdrop-blur">
+                <div key={item} className="rounded-2xl border border-gold-200 bg-white/70 px-3 py-4 text-center shadow-soft">
                   <div className="font-sans text-xs font-semibold uppercase tracking-[0.16em] text-gold-700">{item}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative min-h-[520px] perspective-stage sm:min-h-[560px]">
+          <div className="relative min-h-[520px] perspective-stage sm:min-h-[560px]" style={{ perspective: '1000px' }}>
             <motion.div
               className="absolute left-0 right-0 top-10 h-px bg-gradient-to-r from-transparent via-gold-300 to-transparent"
               style={{ y: planeY }}
@@ -82,14 +82,22 @@ export default function ScrollJourney() {
 
             <motion.div
               className="relative mx-auto grid max-w-xl gap-5"
-              style={{ rotateX, rotateZ, y, transformStyle: 'preserve-3d' }}
+              style={{ 
+                rotateX, 
+                rotateZ, 
+                y, 
+                transformStyle: 'preserve-3d',
+                transform: 'translateZ(0)',
+                willChange: 'transform',
+              }}
             >
               {steps.map((step, index) => (
                 <motion.article
                   key={step.title}
                   className="journey-card"
                   style={{
-                    transform: `translateZ(${(steps.length - index) * 22}px) translateX(${index % 2 ? 24 : -12}px)`,
+                    transform: `translateZ(${(steps.length - index) * 15}px) translateX(${index % 2 ? 16 : -8}px)`,
+                    backfaceVisibility: 'hidden',
                   }}
                 >
                   <div className="flex items-start gap-4">

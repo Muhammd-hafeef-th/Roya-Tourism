@@ -1,12 +1,10 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useMotionValueEvent, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ChevronDown, MapPin, ArrowRight } from 'lucide-react';
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  
-  const [videoReady, setVideoReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   // Monitor screen size for mobile responsiveness and performance optimization
@@ -24,72 +22,9 @@ export default function Hero() {
     offset: ['start start', 'end end'],
   });
 
-  const targetProgressRef = useRef(0);
-
-  // Track scroll progress and update target without triggering React re-renders
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    // Map the first 82% of the scroll container to 100% of the video duration.
-    // This allows the video to finish playing before the section fully scrolls out of view.
-    const mapped = Math.min(1, latest / 0.82);
-    targetProgressRef.current = mapped;
-  });
-
-  // Handle Video Metadata loaded
-  const handleVideoLoadedMetadata = () => {
-    setVideoReady(true);
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-    }
-  };
-
-  // Highly-optimized self-throttling video seeking loop.
-  // By waiting for the native 'seeked' event before firing subsequent seeks,
-  // we prevent decoder queue buildup and eliminate scroll stutters/lag.
-  useEffect(() => {
-    let rafId: number;
-    let isSeeking = false;
-    
-    const updateVideoProgress = () => {
-      const video = videoRef.current;
-      if (video && video.readyState >= 2 && video.duration) {
-        // Only seek if the video is not currently seeking in the browser
-        if (!video.seeking && !isSeeking) {
-          const targetTime = targetProgressRef.current * video.duration;
-          const diff = targetTime - video.currentTime;
-
-          // Seek only if the playhead difference is meaningful (avoids unnecessary micro-seeks)
-          if (Math.abs(diff) > 0.03) {
-            isSeeking = true;
-            // Lerped step calculation
-            video.currentTime = video.currentTime + diff * 0.16;
-          }
-        }
-      }
-      rafId = requestAnimationFrame(updateVideoProgress);
-    };
-
-    const handleSeeked = () => {
-      isSeeking = false;
-    };
-
-    const video = videoRef.current;
-    if (video) {
-      video.addEventListener('seeked', handleSeeked);
-    }
-
-    rafId = requestAnimationFrame(updateVideoProgress);
-    
-    return () => {
-      cancelAnimationFrame(rafId);
-      if (video) {
-        video.removeEventListener('seeked', handleSeeked);
-      }
-    };
-  }, []);
-
   // Performance-optimized hardware-accelerated transforms
-  const videoOpacity = useTransform(scrollYProgress, [0.75, 0.85], [1, 0]);
-  const blurOverlayOpacity = useTransform(scrollYProgress, [0.4, 0.82], [0, 1]);
+  const videoOpacity = useTransform(scrollYProgress, [0.7, 0.8], [1, 0]);
+  const blurOverlayOpacity = useTransform(scrollYProgress, [0.5, 0.75], [0, 1]);
 
   // Parallax and fade transforms for typography container
   const textOpacity = useTransform(scrollYProgress, [0, 0.42, 0.58], [1, 1, 0]);
@@ -100,7 +35,7 @@ export default function Hero() {
     <section 
       id="hero" 
       ref={containerRef} 
-      className={`relative w-full bg-stone-950 ${isMobile ? 'h-[180vh]' : 'h-[280vh]'}`}
+      className={`relative w-full bg-stone-950 ${isMobile ? 'h-[140vh]' : 'h-[180vh]'}`}
     >
       {/* Sticky Viewport Wrapper */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between">
@@ -115,10 +50,16 @@ export default function Hero() {
           <video
             ref={videoRef}
             className="w-full h-full object-cover transform scale-[1.02]"
-            onLoadedMetadata={handleVideoLoadedMetadata}
+            style={{
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+              backfaceVisibility: 'hidden',
+            }}
+            autoPlay
             muted
+            loop
             playsInline
-            preload="auto"
+            preload="metadata"
             controls={false}
           >
             <source src="/videos/heroVideo.mp4" type="video/mp4" />
@@ -134,9 +75,11 @@ export default function Hero() {
           {/* Atmospheric horizontal drifting fog layer with vertical parallax */}
           <div className="absolute inset-0 pointer-events-none z-[4] mix-blend-screen opacity-15 overflow-hidden">
             <motion.div 
-              className="absolute -left-1/4 top-1/4 w-[150%] h-[50%] bg-gradient-to-r from-transparent via-stone-200/25 to-transparent filter blur-[80px] animate-floating-fog"
+              className="absolute -left-1/4 top-1/4 w-[150%] h-[50%] bg-gradient-to-r from-transparent via-stone-200/25 to-transparent filter blur-[60px] animate-floating-fog"
               style={{
-                y: useTransform(scrollYProgress, [0, 0.82], [0, -40])
+                y: useTransform(scrollYProgress, [0, 0.75], [0, -30]),
+                transform: 'translateZ(0)',
+                willChange: 'transform',
               }}
             />
           </div>
@@ -148,18 +91,14 @@ export default function Hero() {
           <div className="absolute bottom-0 left-0 right-0 h-52 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent pointer-events-none z-[5]" />
         </motion.div>
 
-        {/* Dynamic backdrop blur overlay (Hardware-accelerated layout, 100x faster than live video filter blurring) */}
+        {/* Lightweight gradient overlay instead of heavy backdrop blur */}
         <motion.div
-          className="absolute inset-0 pointer-events-none z-[6] backdrop-blur-md"
+          className="absolute inset-0 pointer-events-none z-[6] bg-gradient-to-b from-stone-950/0 via-stone-950/30 to-stone-950/80"
           style={{
             opacity: blurOverlayOpacity,
           }}
         />
 
-        {/* Subtle cinematic grain effect (disabled on mobile for high scroll performance) */}
-        {!isMobile && (
-          <div className="absolute inset-0 pointer-events-none z-[8] opacity-[0.035] mix-blend-overlay noise-bg animate-[noise-drift_0.4s_steps(4)_infinite]" />
-        )}
 
         {/* Centered Elegant Typography Overlay */}
         <motion.div
@@ -168,6 +107,8 @@ export default function Hero() {
             opacity: textOpacity,
             scale: textScale,
             y: textY,
+            transform: 'translateZ(0)',
+            willChange: 'transform, opacity',
           }}
         >
           <div className="text-center max-w-5xl mx-auto w-full pointer-events-auto">
@@ -270,22 +211,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Luxury Loading Screen Overlay */}
-      <AnimatePresence>
-        {!videoReady && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: 'easeInOut' }}
-            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-stone-950"
-          >
-            <div className="w-12 h-12 rounded-full border border-amber-300/30 border-t-amber-300 animate-spin mb-4" />
-            <span className="text-amber-100 font-sans font-light tracking-[0.3em] uppercase text-xs">
-              Preparing Cinematic Journey...
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }

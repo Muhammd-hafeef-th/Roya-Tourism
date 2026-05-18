@@ -31,14 +31,14 @@
   }
   .glass {
     background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(201, 168, 76, 0.15);
   }
   .glass-white {
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(201, 168, 76, 0.2);
   }
   .gold-divider {
@@ -50,8 +50,8 @@
   
   /* Cinematic effects */
   .cinematic-blur {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
   
   .cinematic-glow {
@@ -60,8 +60,8 @@
   
   .glass-luxury {
     background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
@@ -323,7 +323,7 @@
 
 .hero-orbit-card {
   background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(201, 168, 76, 0.22);
   box-shadow: 0 24px 70px rgba(26, 21, 16, 0.16);
 }
@@ -390,7 +390,7 @@
   background:
     linear-gradient(180deg, rgba(255, 247, 232, 0.12), rgba(13, 30, 31, 0.5)),
     url('/img3.png') center/cover no-repeat;
-  filter: blur(18px) saturate(1.05);
+  filter: blur(12px) saturate(1.05);
   transform: scale(1.08);
 }
 
@@ -410,7 +410,7 @@
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.16)),
     radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 40%);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(8px);
 }
 
 .hero-mini-card {
@@ -451,7 +451,7 @@
     background:
       linear-gradient(180deg, rgba(255, 247, 232, 0.12), rgba(13, 30, 31, 0.58)),
       url('/img3.png') center/cover no-repeat;
-    filter: blur(12px) saturate(1.02);
+    filter: blur(8px) saturate(1.02);
   }
 
   .hero-flight-path {
