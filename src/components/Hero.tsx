@@ -1,190 +1,291 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, CalendarDays, ChevronDown, MapPin, Plane, Search, ShieldCheck, Sparkles, Star } from 'lucide-react';
-
-const heroImages = [
-  { src: '/img1.png', label: 'Maldives', caption: 'Island villas' },
-  { src: '/img2.png', label: 'Dubai', caption: 'Desert nights' },
-  { src: '/heroImage.jpeg', label: 'Honeymoon', caption: 'Ocean stays' },
-];
-
-const trustLogos = ['Umrah Care', 'Trip Plan', 'Expedia', 'Air Partner', 'Roya Select'];
-
-function MiniCard({ image, index }: { image: typeof heroImages[0]; index: number }) {
-  return (
-    <motion.div
-      className="hero-mini-card"
-      initial={{ opacity: 0, y: 26, rotateY: index % 2 ? -14 : 14 }}
-      animate={{
-        opacity: 1,
-        y: index % 2 ? [0, -12, 0] : [0, 12, 0],
-        rotateY: index % 2 ? [-8, -2, -8] : [8, 2, 8],
-      }}
-      transition={{
-        opacity: { duration: 0.7, delay: 0.45 + index * 0.12 },
-        y: { duration: 5 + index, repeat: Infinity, ease: 'easeInOut' },
-        rotateY: { duration: 5 + index, repeat: Infinity, ease: 'easeInOut' },
-      }}
-    >
-      <img src={image.src} alt={image.label} className="h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-      <div className="absolute bottom-3 left-3 right-3">
-        <div className="font-serif text-lg font-semibold text-white">{image.label}</div>
-        <div className="font-sans text-[0.68rem] text-white/70">{image.caption}</div>
-      </div>
-    </motion.div>
-  );
-}
+import { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useMotionValueEvent, useTransform, AnimatePresence } from 'framer-motion';
+import { ChevronDown, MapPin, ArrowRight } from 'lucide-react';
 
 export default function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '16%']);
-  const cardY = useTransform(scrollYProgress, [0, 1], ['0%', '9%']);
-  const rotateX = useTransform(scrollYProgress, [0, 1], [0, -7]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
-  const planeX = useTransform(scrollYProgress, [0, 1], ['-10%', '108%']);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  const [videoReady, setVideoReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Monitor screen size for mobile responsiveness and performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const targetProgressRef = useRef(0);
+
+  // Track scroll progress and update target without triggering React re-renders
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    // Map the first 82% of the scroll container to 100% of the video duration.
+    // This allows the video to finish playing before the section fully scrolls out of view.
+    const mapped = Math.min(1, latest / 0.82);
+    targetProgressRef.current = mapped;
+  });
+
+  // Handle Video Metadata loaded
+  const handleVideoLoadedMetadata = () => {
+    setVideoReady(true);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  // Highly-optimized self-throttling video seeking loop.
+  // By waiting for the native 'seeked' event before firing subsequent seeks,
+  // we prevent decoder queue buildup and eliminate scroll stutters/lag.
+  useEffect(() => {
+    let rafId: number;
+    let isSeeking = false;
+    
+    const updateVideoProgress = () => {
+      const video = videoRef.current;
+      if (video && video.readyState >= 2 && video.duration) {
+        // Only seek if the video is not currently seeking in the browser
+        if (!video.seeking && !isSeeking) {
+          const targetTime = targetProgressRef.current * video.duration;
+          const diff = targetTime - video.currentTime;
+
+          // Seek only if the playhead difference is meaningful (avoids unnecessary micro-seeks)
+          if (Math.abs(diff) > 0.03) {
+            isSeeking = true;
+            // Lerped step calculation
+            video.currentTime = video.currentTime + diff * 0.16;
+          }
+        }
+      }
+      rafId = requestAnimationFrame(updateVideoProgress);
+    };
+
+    const handleSeeked = () => {
+      isSeeking = false;
+    };
+
+    const video = videoRef.current;
+    if (video) {
+      video.addEventListener('seeked', handleSeeked);
+    }
+
+    rafId = requestAnimationFrame(updateVideoProgress);
+    
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (video) {
+        video.removeEventListener('seeked', handleSeeked);
+      }
+    };
+  }, []);
+
+  // Performance-optimized hardware-accelerated transforms
+  const videoOpacity = useTransform(scrollYProgress, [0.75, 0.85], [1, 0]);
+  const blurOverlayOpacity = useTransform(scrollYProgress, [0.4, 0.82], [0, 1]);
+
+  // Parallax and fade transforms for typography container
+  const textOpacity = useTransform(scrollYProgress, [0, 0.42, 0.58], [1, 1, 0]);
+  const textScale = useTransform(scrollYProgress, [0, 0.58], [1, 0.94]);
+  const textY = useTransform(scrollYProgress, [0, 0.58], [0, -40]);
 
   return (
-    <section id="hero" ref={ref} className="hero-showcase relative min-h-screen overflow-hidden">
-      <motion.div className="hero-showcase-bg" style={{ y: bgY }} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.72),transparent_30%),linear-gradient(180deg,rgba(250,249,247,0.18),rgba(8,20,21,0.52))]" />
-      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#faf9f7] to-transparent" />
-
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 pb-14 pt-24 sm:px-6 lg:pt-28">
-        <div className="hero-perspective relative w-full">
-          <motion.div
-            className="hero-browser-card"
-            style={{ y: cardY, rotateX, scale, transformStyle: 'preserve-3d' }}
-            initial={{ opacity: 0, y: 42, rotateX: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+    <section 
+      id="hero" 
+      ref={containerRef} 
+      className={`relative w-full bg-stone-950 ${isMobile ? 'h-[180vh]' : 'h-[280vh]'}`}
+    >
+      {/* Sticky Viewport Wrapper */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between">
+        
+        {/* Full-screen cinematic video layer */}
+        <motion.div
+          className="absolute inset-0 w-full h-full will-change-opacity"
+          style={{
+            opacity: videoOpacity,
+          }}
+        >
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover transform scale-[1.02]"
+            onLoadedMetadata={handleVideoLoadedMetadata}
+            muted
+            playsInline
+            preload="auto"
+            controls={false}
           >
-            <div className="relative z-10 flex min-h-[520px] flex-col px-4 py-4 sm:min-h-[580px] sm:px-6 sm:py-5 lg:min-h-[620px] lg:px-8">
-              <div className="flex flex-1 flex-col items-center justify-center text-center">
-                <motion.div
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.55, delay: 0.25 }}
-                  className="mb-5 inline-flex items-center gap-2 rounded-full border border-stone-900/10 bg-white/46 px-4 py-2 text-stone-800 shadow-soft backdrop-blur-xl"
-                >
-                  <Sparkles size={13} className="text-gold-700" />
-                  <span className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.18em]">Handcrafted tours for peaceful travel</span>
-                </motion.div>
+            <source src="/videos/heroVideo.mp4" type="video/mp4" />
+          </video>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 22 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.75, delay: 0.35 }}
-                className="max-w-4xl font-serif text-[2.7rem] font-semibold leading-[0.98] text-stone-950 sm:text-6xl lg:text-[5.5rem] xl:text-[6.1rem]"
-                >
-                  The best place to plan your <span className="italic text-gold-700">next journey</span>
-                </motion.h1>
+          {/* Golden sunrise rays */}
+          <div className="absolute inset-0 pointer-events-none z-[3] mix-blend-color-dodge opacity-25 sm:opacity-35 bg-[radial-gradient(circle_at_80%_20%,rgba(253,224,71,0.22)_0%,rgba(251,191,36,0.12)_30%,rgba(251,191,36,0.04)_60%,transparent_100%)]" />
 
-                <motion.p
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.65, delay: 0.48 }}
-                  className="mt-5 max-w-2xl font-sans text-sm leading-relaxed text-stone-700 sm:text-base"
-                >
-                  Premium Umrah, Maldives, Dubai, and international holiday packages with trusted guidance from inquiry to return.
-                </motion.p>
+          {/* Cinematic overlay gradients */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-stone-950/60 z-[2]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 z-[2]" />
 
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.54 }}
-                  className="mt-6 flex flex-wrap items-center justify-center gap-3"
-                >
-                  <div className="rounded-full border border-white/45 bg-white/52 px-4 py-2 font-sans text-xs font-semibold text-stone-800 backdrop-blur-xl">
-                    Umrah and Hajj departures
-                  </div>
-                  <div className="rounded-full border border-white/45 bg-white/52 px-4 py-2 font-sans text-xs font-semibold text-stone-800 backdrop-blur-xl">
-                    Dubai and Maldives luxury stays
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.65, delay: 0.62 }}
-                  className="mt-7 flex w-full max-w-xl flex-col gap-3 rounded-[2rem] border border-white/48 bg-white/55 p-2 shadow-luxury backdrop-blur-2xl sm:flex-row sm:rounded-full"
-                >
-                  <div className="flex flex-1 items-center gap-3 rounded-full bg-white/70 px-4 py-3 text-left">
-                    <Search size={16} className="text-stone-500" />
-                    <span className="font-sans text-sm text-stone-500">Search Umrah, Maldives, Dubai...</span>
-                  </div>
-                  <button
-                    onClick={() => document.querySelector('#packages')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3 font-sans text-sm font-semibold text-white shadow-soft transition-transform hover:-translate-y-0.5"
-                  >
-                    Browse tours
-                    <ArrowRight size={15} />
-                  </button>
-                </motion.div>
-
-                <motion.div
-                  className="mt-7 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3"
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.65, delay: 0.75 }}
-                >
-                  {[
-                    { icon: CalendarDays, label: 'Custom itineraries' },
-                    { icon: ShieldCheck, label: 'Visa support' },
-                    { icon: Star, label: 'Luxury stays' },
-                  ].map(item => (
-                    <div key={item.label} className="flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/42 px-4 py-3 backdrop-blur-xl">
-                      <item.icon size={15} className="text-gold-700" />
-                      <span className="font-sans text-xs font-semibold text-stone-800">{item.label}</span>
-                    </div>
-                  ))}
-                </motion.div>
-              </div>
-
-              <div className="hidden items-center justify-center gap-7 border-t border-white/28 pt-5 md:flex">
-                <span className="font-sans text-[0.65rem] uppercase tracking-[0.22em] text-white/80">Featured with trusted travel partners</span>
-                <div className="flex flex-wrap justify-center gap-5">
-                  {trustLogos.map(name => (
-                    <span key={name} className="font-serif text-sm font-semibold text-white/88 drop-shadow">{name}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <motion.div className="hero-flight-path" style={{ x: planeX }}>
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-stone-950 shadow-luxury backdrop-blur-xl">
-                <Plane size={18} />
-              </div>
-            </motion.div>
-          </motion.div>
-
-          <div className="pointer-events-none absolute inset-0 hidden lg:block">
-            <div className="absolute left-2 top-[30%] w-36 xl:left-6 xl:w-40">
-              <MiniCard image={heroImages[1]} index={0} />
-            </div>
-            <div className="absolute right-2 top-[24%] w-36 xl:right-6 xl:w-40">
-              <MiniCard image={heroImages[2]} index={1} />
-            </div>
-            <div className="absolute bottom-[8%] right-[10%] w-36 xl:w-40">
-              <MiniCard image={heroImages[0]} index={2} />
-            </div>
+          {/* Atmospheric horizontal drifting fog layer with vertical parallax */}
+          <div className="absolute inset-0 pointer-events-none z-[4] mix-blend-screen opacity-15 overflow-hidden">
+            <motion.div 
+              className="absolute -left-1/4 top-1/4 w-[150%] h-[50%] bg-gradient-to-r from-transparent via-stone-200/25 to-transparent filter blur-[80px] animate-floating-fog"
+              style={{
+                y: useTransform(scrollYProgress, [0, 0.82], [0, -40])
+              }}
+            />
           </div>
+
+          {/* Top dark gradient for premium navbar contrast */}
+          <div className="absolute top-0 left-0 right-0 h-36 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-[5]" />
+
+          {/* Bottom dark gradient blend to anchor the hero frame */}
+          <div className="absolute bottom-0 left-0 right-0 h-52 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent pointer-events-none z-[5]" />
+        </motion.div>
+
+        {/* Dynamic backdrop blur overlay (Hardware-accelerated layout, 100x faster than live video filter blurring) */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none z-[6] backdrop-blur-md"
+          style={{
+            opacity: blurOverlayOpacity,
+          }}
+        />
+
+        {/* Subtle cinematic grain effect (disabled on mobile for high scroll performance) */}
+        {!isMobile && (
+          <div className="absolute inset-0 pointer-events-none z-[8] opacity-[0.035] mix-blend-overlay noise-bg animate-[noise-drift_0.4s_steps(4)_infinite]" />
+        )}
+
+        {/* Centered Elegant Typography Overlay */}
+        <motion.div
+          className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pointer-events-none"
+          style={{
+            opacity: textOpacity,
+            scale: textScale,
+            y: textY,
+          }}
+        >
+          <div className="text-center max-w-5xl mx-auto w-full pointer-events-auto">
+            {/* Cinematic Category Tag */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-flex items-center gap-3 mb-5 sm:mb-6"
+            >
+              <span className="h-[1px] w-6 bg-amber-400" />
+              <span className="text-[0.62rem] sm:text-xs font-sans font-medium uppercase tracking-[0.35em] text-amber-300">
+                Bespoke Luxury Escapes
+              </span>
+              <span className="h-[1px] w-6 bg-amber-400" />
+            </motion.div>
+
+            {/* Apple & Airbnb Luxe Inspired Elegant Heading */}
+            <motion.h1
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="font-serif font-light leading-[1.1] tracking-tight mb-6 sm:mb-8 text-white text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
+            >
+              Discover Journeys <br className="hidden sm:inline" />
+              <span className="italic font-light bg-gradient-to-r from-amber-100 via-yellow-200 to-amber-100 bg-clip-text text-transparent">
+                Beyond Imagination
+              </span>
+            </motion.h1>
+
+            {/* Clean White Luxury Subheading */}
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="font-sans font-light text-white/80 max-w-2xl mx-auto mb-10 sm:mb-12 leading-relaxed text-xs sm:text-sm md:text-base lg:text-lg tracking-wide px-2 sm:px-0"
+            >
+              Luxury escapes, spiritual experiences, and unforgettable destinations crafted for modern travelers.
+            </motion.p>
+
+            {/* Glassmorphic Responsive CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4"
+            >
+              {/* Primary: Start Your Journey */}
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="group relative px-8 py-3.5 sm:py-4 rounded-full font-sans font-medium text-stone-900 transition-all duration-500 overflow-hidden shadow-luxury w-full sm:w-auto min-w-[200px]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 border border-white/40 opacity-95 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-amber-400/30 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <span className="relative z-10 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold tracking-wider uppercase">
+                  Start Your Journey <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </motion.button>
+
+              {/* Secondary: Explore Packages */}
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  document.querySelector('#packages')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="group relative px-8 py-3.5 sm:py-4 rounded-full font-sans font-medium text-white transition-all duration-500 w-full sm:w-auto min-w-[200px]"
+              >
+                <div className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-xl border border-white/25 group-hover:border-white/40 transition-colors duration-500" />
+                <span className="relative z-10 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold tracking-wider uppercase">
+                  Explore Packages
+                </span>
+              </motion.button>
+            </motion.div>
+          </div>
+
+          {/* Smooth Fade Scroll Indicator */}
+          <motion.div
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            style={{
+              opacity: useTransform(scrollYProgress, [0, 0.12], [1, 0]),
+              pointerEvents: 'none',
+            }}
+          >
+            <span className="text-white/60 text-[0.62rem] font-sans font-light uppercase tracking-[0.25em]">
+              Scroll to begin
+            </span>
+            <ChevronDown size={16} className="text-white/60 animate-bounce" />
+          </motion.div>
+        </motion.div>
+
+        {/* Floating Location Badge - Hidden on mobile, responsive on larger screens */}
+        <div className="absolute bottom-6 right-6 z-20 hidden sm:flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-white backdrop-blur-xl text-xs md:text-sm">
+          <MapPin size={14} className="text-amber-300 flex-shrink-0" />
+          <span className="font-sans font-light tracking-wider">Umrah, Dubai, Maldives, Turkey & more</span>
         </div>
       </div>
 
-      <button
-        className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 text-white/85"
-        onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
-      >
-        <span className="rounded-full border border-white/30 bg-white/15 px-3 py-1 font-sans text-[0.65rem] uppercase tracking-[0.2em] backdrop-blur">Scroll</span>
-        <ChevronDown size={18} />
-      </button>
-
-      <div className="absolute bottom-8 right-6 z-20 hidden items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 text-white backdrop-blur-xl md:flex">
-        <MapPin size={15} className="text-gold-300" />
-        <span className="font-sans text-xs">Umrah, Dubai, Maldives, Turkey and more</span>
-      </div>
+      {/* Luxury Loading Screen Overlay */}
+      <AnimatePresence>
+        {!videoReady && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: 'easeInOut' }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-stone-950"
+          >
+            <div className="w-12 h-12 rounded-full border border-amber-300/30 border-t-amber-300 animate-spin mb-4" />
+            <span className="text-amber-100 font-sans font-light tracking-[0.3em] uppercase text-xs">
+              Preparing Cinematic Journey...
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
