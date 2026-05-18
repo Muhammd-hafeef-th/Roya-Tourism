@@ -62,7 +62,7 @@ export default function Hero() {
             preload="metadata"
             controls={false}
           >
-            <source src="/videos/heroVideo.mp4" type="video/mp4" />
+            <source src="/videos/hero-image-roya.mp4" type="video/mp4" />
           </video>
 
           {/* Golden sunrise rays */}
