@@ -1,348 +1,312 @@
 import { useRef, useEffect, useState } from 'react';
 import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useMotionValue,
-  animate,
+  motion, useScroll, useTransform, useSpring, useMotionValue, animate,
 } from 'framer-motion';
-import { ChevronDown, MapPin, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
+
+const WORDS = ['Journey', 'Beyond', 'Horizons'];
+
+/* Breakpoint thresholds */
+const BP = { sm: 640, md: 768, lg: 1024, xl: 1280, tv: 1920 };
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [vw, setVw] = useState(0);
+  const [videoReady, setVideoReady] = useState(false);
 
-  /* ─── Detect breakpoints ─── */
   useEffect(() => {
-    const update = () => {
-      const w = window.innerWidth;
-      setIsMobile(w < 768);
-      setIsTablet(w >= 768 && w < 1024);
-    };
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    const upd = () => setVw(window.innerWidth);
+    upd();
+    window.addEventListener('resize', upd);
+    return () => window.removeEventListener('resize', upd);
   }, []);
 
-  /* ─── Ensure video plays on all devices ─── */
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.play().catch(() => {});
-  }, []);
+  useEffect(() => { videoRef.current?.play().catch(() => { }); }, []);
 
-  /* ──────────────────────────────────────────
-     SCROLL TRACKING
-     Track scroll within the 180vh container
-  ────────────────────────────────────────── */
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  });
+  const isMobile = vw < BP.sm;
+  const isTablet = vw >= BP.sm && vw < BP.lg;
+  const isTV = vw >= BP.tv;
 
-  /* Spring-smooth progress for buttery feel */
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 60,
-    damping: 22,
-    restDelta: 0.001,
-  });
+  /* Section height: taller on bigger screens for more scroll travel */
+  const sectionH = isMobile ? '160vh' : isTablet ? '180vh' : isTV ? '220vh' : '200vh';
 
-  /* ──────────────────────────────────────────
-     LAYER 1 — VIDEO
-     Desktop: scale 1 → 1.12 (cinematic zoom)
-     Mobile:  scale 1 → 1.04 (preserve clarity)
-  ────────────────────────────────────────── */
-  const videoScaleDesktop = useTransform(smoothProgress, [0, 0.7], [1, 1.12]);
-  const videoScaleMobile  = useTransform(smoothProgress, [0, 0.7], [1, 1.04]);
-  const videoY            = useTransform(smoothProgress, [0, 1],   [0, -40]);
-  const videoOpacity      = useTransform(smoothProgress, [0.72, 0.88], [1, 0]);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
+  const p = useSpring(scrollYProgress, { stiffness: 52, damping: 20, restDelta: 0.001 });
 
-  /* ──────────────────────────────────────────
-     LAYER 2 — GRADIENT OVERLAYS
-  ────────────────────────────────────────── */
-  const darkOverlayOpacity  = useTransform(smoothProgress, [0, 0.5, 0.8], [0.55, 0.72, 0.9]);
-  const blurOverlayOpacity  = useTransform(smoothProgress, [0.45, 0.78], [0, 1]);
+  /* ── VIDEO: gentle on mobile, full cinematic on desktop/TV ── */
+  const vidScaleEnd = isMobile ? 1.07 : isTablet ? 1.14 : isTV ? 1.32 : 1.26;
+  const vidYEnd = isMobile ? -20 : isTablet ? -40 : isTV ? -90 : -70;
+  const vidScale = useTransform(p, [0, 1], [1, vidScaleEnd]);
+  const vidY = useTransform(p, [0, 1], [0, vidYEnd]);
 
-  /* ──────────────────────────────────────────
-     LAYER 3 — GLOW ORBS (floating parallax)
-  ────────────────────────────────────────── */
-  const glowY = useTransform(smoothProgress, [0, 1], [0, -80]);
-  const glowX = useTransform(smoothProgress, [0, 0.5, 1], [0, 15, -15]);
+  /* ── FOG ── */
+  const fogY = useTransform(p, [0, 1], [0, -50]);
+  const fogOp = useTransform(p, [0, 0.3, 0.65, 0.9], [0.12, 0.28, 0.32, 0.08]);
+  const fogX = useTransform(p, [0, 0.5, 1], [-10, 18, -6]);
 
-  /* ──────────────────────────────────────────
-     LAYER 4 — FOG / ATMOSPHERIC
-  ────────────────────────────────────────── */
-  const fogY      = useTransform(smoothProgress, [0, 0.8], [0, -50]);
-  const fogOpacity= useTransform(smoothProgress, [0, 0.6], [0.18, 0.06]);
+  /* ── RAYS ── */
+  const raysY = useTransform(p, [0, 1], [0, -50]);
+  const raysOp = useTransform(p, [0, 0.15, 0.6, 0.88], [0, 0.65, 0.5, 0]);
+  const raysSc = useTransform(p, [0, 1], [0.88, 1.15]);
 
-  /* ──────────────────────────────────────────
-     LAYER 5 — TYPOGRAPHY
-     Heading: fade + blur-in → slow upward exit
-     Sub:     delayed fade → softer motion
-  ────────────────────────────────────────── */
-  const textOpacity  = useTransform(smoothProgress, [0, 0.38, 0.62], [1, 1, 0]);
-  const textY        = useTransform(smoothProgress, [0, 0.62], ['0%', '-8%']);
-  const textScale    = useTransform(smoothProgress, [0, 0.62], [1, 0.95]);
+  /* ── OVERLAY ── */
+  const overOp = useTransform(p, [0, 0.5, 0.85, 1], [0.42, 0.55, 0.78, 0.96]);
 
-  /* ──────────────────────────────────────────
-     LAYER 6 — CTA BUTTONS (slowest layer)
-  ────────────────────────────────────────── */
-  const ctaY      = useTransform(smoothProgress, [0, 0.55], ['0%', '-5%']);
-  const ctaOpacity= useTransform(smoothProgress, [0, 0.32, 0.58], [1, 1, 0]);
+  /* ── GLOW ── */
+  const glowY = useTransform(p, [0, 1], [0, -28]);
+  const glowOp = useTransform(p, [0, 0.3, 0.7, 0.9], [0.18, 0.32, 0.22, 0]);
 
-  /* ──────────────────────────────────────────
-     AMBIENT CURSOR PARALLAX (desktop only)
-  ────────────────────────────────────────── */
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
-  const parallaxX = useSpring(cursorX, { stiffness: 40, damping: 20 });
-  const parallaxY = useSpring(cursorY, { stiffness: 40, damping: 20 });
+  /* ── TEXT ── */
+  const textY = useTransform(p, [0, 0.55, 0.75], ['0%', '-7%', '-16%']);
+  const textOp = useTransform(p, [0, 0.38, 0.65, 0.8], [1, 1, 0.35, 0]);
+  const textSc = useTransform(p, [0, 0.65], [1, 0.92]);
+  const textFilter = useTransform(p, [0.5, 0.72], ['blur(0px)', 'blur(9px)']);
+
+  /* ── CTA ── */
+  const ctaY = useTransform(p, [0, 0.5, 0.72], ['0%', '-3%', '-12%']);
+  const ctaOp = useTransform(p, [0, 0.32, 0.6, 0.75], [1, 1, 0.45, 0]);
+
+  /* ── TRANSITION ── */
+  const transOp = useTransform(p, [0.8, 1], [0, 1]);
+  const scrollFade = useTransform(p, [0, 0.09], [1, 0]);
+
+  /* ── CURSOR PARALLAX (desktop only) ── */
+  const curX = useMotionValue(0);
+  const curY = useMotionValue(0);
+  const prlX = useSpring(curX, { stiffness: 32, damping: 18 });
 
   useEffect(() => {
-    if (isMobile) return;
-    const handleMove = (e: MouseEvent) => {
-      const cx = (e.clientX / window.innerWidth  - 0.5) * 18;
-      const cy = (e.clientY / window.innerHeight - 0.5) * 12;
-      animate(cursorX, cx, { duration: 0.8, ease: 'easeOut' });
-      animate(cursorY, cy, { duration: 0.8, ease: 'easeOut' });
+    if (isMobile || isTablet) return;
+    const fn = (e: MouseEvent) => {
+      animate(curX, (e.clientX / window.innerWidth - 0.5) * 24, { duration: 1, ease: 'easeOut' });
+      animate(curY, (e.clientY / window.innerHeight - 0.5) * 15, { duration: 1, ease: 'easeOut' });
     };
-    window.addEventListener('mousemove', handleMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMove);
-  }, [isMobile]);
+    window.addEventListener('mousemove', fn, { passive: true });
+    return () => window.removeEventListener('mousemove', fn);
+  }, [isMobile, isTablet]);
 
-  /* ──────────────────────────────────────────
-     SCROLL INDICATOR FADE
-  ────────────────────────────────────────── */
-  const scrollFade = useTransform(smoothProgress, [0, 0.1], [1, 0]);
+  /* ── Responsive sizes ── */
+  const headlineSize = isMobile
+    ? 'clamp(2.2rem, 11vw, 3rem)'
+    : isTablet
+      ? 'clamp(3rem, 7.5vw, 5rem)'
+      : isTV
+        ? 'clamp(6rem, 6vw, 10rem)'
+        : 'clamp(3.8rem, 6.5vw, 7.5rem)';
+
+  const subSize = isMobile
+    ? 'clamp(0.78rem, 3.8vw, 0.95rem)'
+    : isTablet
+      ? 'clamp(0.9rem, 2vw, 1.1rem)'
+      : isTV
+        ? 'clamp(1.2rem, 1.2vw, 1.6rem)'
+        : 'clamp(0.9rem, 1.3vw, 1.1rem)';
+
+  const eyebrowSize = isMobile ? '0.55rem' : isTV ? '0.9rem' : '0.62rem';
+  const eyebrowTracking = isMobile ? '0.3em' : '0.42em';
+
+  const btnPx = isMobile ? 'px-6' : isTV ? 'px-14' : 'px-10';
+  const btnPy = isMobile ? 'py-3.5' : isTV ? 'py-6' : 'py-4';
+  const btnText = isMobile
+    ? 'text-[0.62rem]'
+    : isTV
+      ? 'text-[0.85rem]'
+      : 'text-[0.68rem] sm:text-[0.72rem]';
+
+  const contentPx = isMobile ? 'px-5' : isTablet ? 'px-8' : isTV ? 'px-24' : 'px-10';
+  const maxW = isTV ? 'max-w-7xl' : 'max-w-4xl';
+  const mbEyebrow = isMobile ? 'mb-5' : isTV ? 'mb-12' : 'mb-7';
+  const mbHeadline = isMobile ? 'mb-3' : isTV ? 'mb-8' : 'mb-4';
+  const mbDivider = isMobile ? 'mb-4' : isTV ? 'mb-10' : 'mb-7';
+  const mbSub = isMobile ? 'mb-8' : isTV ? 'mb-16' : 'mb-11';
 
   return (
-    <section
-      id="hero"
-      ref={containerRef}
-      className="relative w-full bg-stone-950"
-      style={{ height: isMobile ? '145vh' : '185vh' }}
-    >
-      {/* ══════════════════════════════════════
-          STICKY VIEWPORT FRAME
-      ══════════════════════════════════════ */}
+    <section id="hero" ref={containerRef} className="relative w-full bg-stone-950" style={{ height: sectionH }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden">
 
-        {/* ── LAYER 1: VIDEO ───────────────────── */}
+        {/* ══ L1: VIDEO ══ */}
         <motion.div
           className="absolute inset-0 w-full h-full"
-          style={{
-            opacity: videoOpacity,
-            y: videoY,
-            willChange: 'transform, opacity',
-            transform: 'translateZ(0)',
-            backfaceVisibility: 'hidden',
-          }}
+          style={{ scale: vidScale, y: vidY, x: isMobile || isTablet ? 0 : prlX, willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
         >
-          <motion.div
-            className="w-full h-full"
-            style={{
-              scale: isMobile ? videoScaleMobile : videoScaleDesktop,
-              x: isMobile ? 0 : parallaxX,
-              willChange: 'transform',
-              transform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-            }}
+          <video ref={videoRef}
+            className="w-full h-full object-cover object-center"
+            style={{ transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' }}
+            autoPlay muted loop playsInline preload="auto"
+            onCanPlayThrough={() => setVideoReady(true)}
           >
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover object-center"
-              style={{
-                transform: 'translateZ(0)',
-                willChange: 'transform',
-                backfaceVisibility: 'hidden',
-              }}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              onCanPlayThrough={() => setVideoLoaded(true)}
-            >
-              <source src="/videos/hero-image-roya.mp4" type="video/mp4" />
-            </video>
-          </motion.div>
-
-          {/* Golden sunrise lens flare */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none z-[3]"
-            style={{ opacity: isMobile ? 0.2 : 0.32, y: isMobile ? 0 : parallaxY }}
-          >
-            <div className="absolute top-[8%] right-[18%] w-[420px] h-[420px] rounded-full bg-amber-400/20 blur-[100px] mix-blend-color-dodge" />
-            <div className="absolute top-[12%] right-[22%] w-[180px] h-[180px] rounded-full bg-yellow-200/30 blur-[50px] mix-blend-color-dodge" />
-          </motion.div>
-
-          {/* Cinematic gradient overlays */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/10 to-stone-950/80 z-[2]"
-            style={{ opacity: darkOverlayOpacity }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/15 z-[2]" />
-
-          {/* Vignette — edge darkening */}
-          <div
-            className="absolute inset-0 z-[2] pointer-events-none"
-            style={{
-              background:
-                'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-            }}
-          />
-
-          {/* Top navbar shadow gradient */}
-          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/75 to-transparent pointer-events-none z-[5]" />
-
-          {/* Bottom blend to white body */}
-          <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent pointer-events-none z-[5]" />
+            <source src="/videos/hero-image-roya.mp4" type="video/mp4" />
+          </video>
         </motion.div>
 
-        {/* ── LAYER 2: ATMOSPHERIC FOG ─────────── */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none z-[4] overflow-hidden"
-          style={{ opacity: fogOpacity, y: fogY }}
-        >
-          <div className="absolute -left-1/4 top-[30%] w-[150%] h-[40%] bg-gradient-to-r from-transparent via-stone-200/20 to-transparent blur-[70px] animate-floating-fog" />
+        {/* ══ L2: FOG ══ */}
+        <motion.div className="absolute inset-0 pointer-events-none z-[3]"
+          style={{ y: fogY, x: fogX, opacity: fogOp, willChange: 'transform, opacity' }}>
+          <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-white/15 via-white/8 to-transparent blur-[35px]" />
+          <div className="absolute top-[28%] -left-[8%] w-[120%] h-[22%] bg-gradient-to-r from-transparent via-white/10 to-transparent blur-[55px] animate-floating-fog" />
+          <div className="absolute top-[52%] left-[8%] w-[88%] h-[18%] bg-gradient-to-r from-transparent via-stone-100/8 to-transparent blur-[45px] animate-floating-fog"
+            style={{ animationDelay: '-7s', animationDuration: '20s' }} />
         </motion.div>
 
-        {/* ── LAYER 3: FLOATING GLOW ORBS ─────── */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none z-[4] overflow-hidden"
-          style={{ y: glowY, x: isMobile ? 0 : glowX, willChange: 'transform' }}
-        >
-          <div className="absolute bottom-[20%] left-[10%] w-64 h-64 rounded-full bg-amber-500/8 blur-[80px]" />
-          <div className="absolute top-[35%] right-[8%] w-48 h-48 rounded-full bg-orange-400/8 blur-[60px]" />
+        {/* ══ L3: LIGHT RAYS ══ */}
+        <motion.div className="absolute inset-0 pointer-events-none z-[4] overflow-hidden"
+          style={{ y: raysY, scale: raysSc, opacity: raysOp, willChange: 'transform, opacity' }}>
+          <div className="absolute inset-0" style={{
+            background: 'conic-gradient(from 260deg at 70% 0%, transparent 0deg, rgba(253,224,71,0.08) 8deg, transparent 18deg, transparent 26deg, rgba(251,191,36,0.06) 34deg, transparent 44deg, rgba(253,224,71,0.05) 54deg, transparent 65deg)',
+          }} />
+          <div className="absolute top-[3%] right-[18%] rounded-full" style={{
+            width: isTV ? '700px' : '480px', height: isTV ? '700px' : '480px',
+            background: 'radial-gradient(circle, rgba(253,224,71,0.22) 0%, rgba(251,191,36,0.12) 28%, rgba(255,140,0,0.05) 55%, transparent 75%)',
+            filter: 'blur(18px)',
+          }} />
+          <div className="absolute top-0 right-0 w-[42%] h-[55%]" style={{
+            background: 'linear-gradient(225deg, rgba(253,224,71,0.14) 0%, rgba(251,191,36,0.06) 35%, transparent 65%)',
+            filter: 'blur(12px)',
+          }} />
         </motion.div>
 
-        {/* ── LAYER 4: SCROLL-BASED TRANSITION ─── */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none z-[6] bg-gradient-to-b from-stone-950/0 via-stone-950/20 to-stone-950/85"
-          style={{ opacity: blurOverlayOpacity }}
-        />
+        {/* ══ L4: CINEMATIC OVERLAYS ══ */}
+        <div className="absolute inset-0 z-[5] pointer-events-none">
+          <motion.div className="absolute top-0 left-0 right-0 h-52 bg-gradient-to-b from-black/78 via-black/30 to-transparent" style={{ opacity: overOp }} />
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/28 via-transparent to-black/22" />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 32%, rgba(0,0,0,0.52) 100%)' }} />
+          <motion.div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-900/8 to-stone-950/55" style={{ opacity: overOp }} />
+        </div>
 
-        {/* ══════════════════════════════════════
-            LAYER 5: TYPOGRAPHY BLOCK
-        ══════════════════════════════════════ */}
+        {/* ══ L5: FOREGROUND GLOW ══ */}
+        <motion.div className="absolute inset-0 pointer-events-none z-[6]"
+          style={{ y: glowY, opacity: glowOp, willChange: 'transform, opacity' }}>
+          <div className="absolute bottom-[12%] left-[18%] right-[18%] h-[32%] rounded-full" style={{
+            background: 'radial-gradient(ellipse, rgba(251,191,36,0.18) 0%, rgba(255,140,0,0.09) 42%, transparent 72%)',
+            filter: 'blur(45px)',
+          }} />
+        </motion.div>
+
+        {/* ══ L6: LIGHT DUST PARTICLES ══ */}
+        {!isMobile && (
+          <div className="absolute inset-0 pointer-events-none z-[7] overflow-hidden">
+            {[0, 1, 2, 3, 4, 5].map(i => (
+              <motion.div key={i} className="absolute rounded-full"
+                style={{
+                  width: `${1.5 + (i % 3) * 0.8}px`, height: `${1.5 + (i % 3) * 0.8}px`,
+                  left: `${12 + i * 13}%`, top: `${20 + (i % 4) * 16}%`,
+                  background: 'rgba(251,219,147,0.55)', filter: 'blur(0.4px)',
+                }}
+                animate={{ y: [-10, 10, -10], opacity: [0, 0.8, 0], x: [-4, 4, -4] }}
+                transition={{ duration: 4.5 + i * 1.1, delay: i * 0.7, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* ══ L7: TYPOGRAPHY ══ */}
         <motion.div
-          className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-10 pointer-events-none"
-          style={{
-            opacity: textOpacity,
-            scale: textScale,
-            y: textY,
-            willChange: 'transform, opacity',
-            transform: 'translateZ(0)',
-            backfaceVisibility: 'hidden',
-          }}
+          className={`absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none ${contentPx}`}
+          style={{ y: textY, opacity: textOp, scale: textSc, filter: textFilter, willChange: 'transform, opacity, filter', transform: 'translateZ(0)' }}
         >
-          <div className="text-center max-w-5xl mx-auto w-full pointer-events-auto">
+          <div className={`text-center ${maxW} mx-auto w-full pointer-events-auto`}>
 
-            {/* — Cinematic badge — */}
+            {/* Eyebrow */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-3 mb-5 sm:mb-7"
+              initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 1.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className={`flex items-center justify-center gap-2 sm:gap-3 ${mbEyebrow}`}
             >
-              <span className="h-px w-6 sm:w-8 bg-gradient-to-r from-transparent to-amber-400" />
-              <span className="flex items-center gap-1.5 text-[0.6rem] sm:text-[0.68rem] font-sans font-medium uppercase tracking-[0.32em] text-amber-300/90">
-                <Sparkles size={10} className="text-amber-400" />
-                Bespoke Luxury Escapes
-                <Sparkles size={10} className="text-amber-400" />
+              <span className="h-px w-6 sm:w-10 lg:w-14 bg-gradient-to-r from-transparent to-amber-400/75" />
+              <span className="font-sans font-medium uppercase text-amber-300/85"
+                style={{ fontSize: eyebrowSize, letterSpacing: eyebrowTracking }}>
+                Roya Tourism · Luxury Travel
               </span>
-              <span className="h-px w-6 sm:w-8 bg-gradient-to-l from-transparent to-amber-400" />
+              <span className="h-px w-6 sm:w-10 lg:w-14 bg-gradient-to-l from-transparent to-amber-400/75" />
             </motion.div>
 
-            {/* — Main heading: blur-in + fade up — */}
-            <motion.h1
-              initial={{ opacity: 0, y: 40, filter: 'blur(12px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{ duration: 1.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="font-serif font-light leading-[1.08] tracking-tight mb-5 sm:mb-7 text-white"
-              style={{
-                fontSize: 'clamp(2.1rem, 6.5vw, 6.5rem)',
-                willChange: 'transform, opacity, filter',
-              }}
-            >
-              Discover Journeys{' '}
-              <br className="hidden sm:inline" />
-              <span
-                className="italic font-light"
-                style={{
-                  background:
-                    'linear-gradient(115deg, #fde68a 0%, #fef3c7 38%, #fbbf24 60%, #fde68a 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  backgroundSize: '200% auto',
-                  animation: 'shimmer 5s linear infinite',
-                }}
-              >
-                Beyond Imagination
-              </span>
-            </motion.h1>
+            {/* Headline */}
+            <div className={mbHeadline}>
+              <div className="font-serif font-light text-white leading-[1.02] tracking-tight"
+                style={{ fontSize: headlineSize }}>
+                {WORDS.map((word, i) => (
+                  <motion.span key={word}
+                    className="inline-block mr-[0.18em] last:mr-0"
+                    initial={{ opacity: 0, y: 35, filter: 'blur(16px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ duration: 1.6, delay: 0.28 + i * 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {i === 2 ? (
+                      <span className="italic" style={{
+                        background: 'linear-gradient(115deg, #fde68a 0%, #fef3c7 32%, #fbbf24 56%, #fde68a 100%)',
+                        backgroundSize: '200% auto', WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                        animation: 'shimmer 6s linear infinite',
+                      }}>{word}</span>
+                    ) : word}
+                  </motion.span>
+                ))}
+              </div>
+            </div>
 
-            {/* — Subheading: delayed + soft — */}
+            {/* Divider */}
+            <motion.div
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              transition={{ duration: 1.5, delay: 0.95, ease: [0.16, 1, 0.3, 1] }}
+              className={`h-px bg-gradient-to-r from-transparent via-amber-400/65 to-transparent mx-auto ${mbDivider}`}
+              style={{ width: isTV ? '6rem' : isMobile ? '3.5rem' : '5rem' }}
+            />
+
+            {/* Subheading */}
             <motion.p
-              initial={{ opacity: 0, y: 22, filter: 'blur(6px)' }}
+              initial={{ opacity: 0, y: 26, filter: 'blur(8px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{ duration: 1.5, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="font-sans font-light text-white/75 max-w-xl mx-auto mb-9 sm:mb-11 leading-relaxed tracking-wide px-2 sm:px-0"
+              transition={{ duration: 1.7, delay: 0.78, ease: [0.16, 1, 0.3, 1] }}
+              className={`font-sans font-light text-white/70 mx-auto ${mbSub} leading-[1.82] tracking-wide`}
               style={{
-                fontSize: 'clamp(0.82rem, 1.6vw, 1.1rem)',
-                willChange: 'transform, opacity, filter',
+                fontSize: subSize,
+                maxWidth: isTV ? '52rem' : isMobile ? '22rem' : '36rem',
               }}
             >
-              Luxury escapes, spiritual experiences, and unforgettable destinations
-              crafted for modern travelers.
+              Luxury experiences crafted through unforgettable destinations,{' '}
+              <span className="text-white/90">spiritual journeys</span>, and{' '}
+              <span className="text-amber-200/80">timeless adventures</span>.
             </motion.p>
 
-            {/* ══ LAYER 6: CTA BUTTONS ══ */}
-            <motion.div
-              style={{ y: ctaY, opacity: ctaOpacity, willChange: 'transform, opacity' }}
-            >
+            {/* CTA — FIXED: stack on mobile, row on sm+ */}
+            <motion.div style={{ y: ctaY, opacity: ctaOp, willChange: 'transform, opacity' }}>
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.3, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+                initial={{ opacity: 0, y: 22, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 1.5, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center"
               >
-                {/* Primary CTA */}
+                {/* Primary */}
                 <motion.button
-                  whileHover={{ scale: 1.055, y: -3 }}
+                  whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() =>
-                    document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                  className="group relative px-8 py-4 rounded-full font-sans font-semibold text-stone-900 overflow-hidden shadow-luxury w-full sm:w-auto min-w-[210px] transition-shadow duration-500 hover:shadow-[0_20px_60px_rgba(251,191,36,0.4)]"
-                  style={{ willChange: 'transform' }}
+                  onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
+                  className={`group relative ${btnPx} ${btnPy} rounded-full font-sans overflow-hidden transition-shadow duration-500 hover:shadow-[0_22px_65px_rgba(251,191,36,0.48)] w-full sm:w-auto`}
+                  style={{ willChange: 'transform', minWidth: isMobile ? 'auto' : isTV ? '280px' : '210px' }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 border border-white/30" />
-                  <div className="absolute inset-0 bg-amber-400/25 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <span className="relative z-10 flex items-center justify-center gap-2 text-xs sm:text-sm tracking-wider uppercase">
-                    Start Your Journey
-                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 border border-white/20" />
+                  <div className="absolute inset-0 bg-amber-400/30 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className={`relative z-10 flex items-center justify-center gap-2 text-stone-900 font-semibold tracking-[0.2em] uppercase ${btnText}`}>
+                    Begin Your Journey
+                    <ArrowRight size={isMobile ? 12 : 14} className="group-hover:translate-x-1 transition-transform duration-300" />
                   </span>
                 </motion.button>
 
-                {/* Secondary CTA */}
+                {/* Secondary */}
                 <motion.button
-                  whileHover={{ scale: 1.055, y: -3 }}
+                  whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() =>
-                    document.querySelector('#packages')?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                  className="group relative px-8 py-4 rounded-full font-sans font-semibold text-white w-full sm:w-auto min-w-[210px] transition-all duration-500"
-                  style={{ willChange: 'transform' }}
+                  onClick={() => document.querySelector('#packages')?.scrollIntoView({ behavior: 'smooth' })}
+                  className={`group relative ${btnPx} ${btnPy} rounded-full font-sans text-white w-full sm:w-auto`}
+                  style={{ willChange: 'transform', minWidth: isMobile ? 'auto' : isTV ? '280px' : '210px' }}
                 >
-                  <div className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-xl border border-white/25 group-hover:border-white/45 group-hover:bg-white/15 transition-all duration-500" />
-                  <span className="relative z-10 flex items-center justify-center gap-2 text-xs sm:text-sm tracking-wider uppercase">
-                    Explore Packages
+                  <div className="absolute inset-0 rounded-full bg-white/8 backdrop-blur-2xl border border-white/20 group-hover:border-amber-400/40 group-hover:bg-white/14 transition-all duration-500" />
+                  <span className={`relative z-10 font-semibold tracking-[0.2em] uppercase ${btnText}`}>
+                    Explore Journeys
                   </span>
                 </motion.button>
               </motion.div>
@@ -351,39 +315,36 @@ export default function Hero() {
 
           {/* Scroll indicator */}
           <motion.div
-            className="absolute bottom-9 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5"
             style={{ opacity: scrollFade, pointerEvents: 'none' }}
           >
-            <span className="text-white/50 text-[0.6rem] font-sans font-light uppercase tracking-[0.28em]">
-              Scroll to begin
+            <span className="text-white/40 font-sans font-light uppercase tracking-[0.3em]"
+              style={{ fontSize: isMobile ? '0.5rem' : '0.55rem' }}>
+              Scroll to explore
             </span>
             <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <ChevronDown size={16} className="text-white/50" />
-            </motion.div>
+              className="w-px h-8 sm:h-10 bg-gradient-to-b from-white/45 to-transparent"
+              animate={{ scaleY: [1, 0.3, 1], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ transformOrigin: 'top' }}
+            />
           </motion.div>
         </motion.div>
 
-        {/* ══ LOCATION BADGE ══ */}
+        {/* ══ SECTION TRANSITION ══ */}
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1.2, delay: 1, ease: [0.16, 1, 0.3, 1] }}
-          style={{ opacity: ctaOpacity }}
-          className="absolute bottom-6 right-5 sm:right-7 z-20 hidden xs:flex items-center gap-2 rounded-full border border-white/18 bg-black/28 px-4 py-2 text-white backdrop-blur-xl"
-        >
-          <MapPin size={13} className="text-amber-300 flex-shrink-0" />
-          <span className="font-sans font-light tracking-wider text-[0.68rem] sm:text-xs whitespace-nowrap">
-            Umrah · Dubai · Maldives · Turkey &amp; more
-          </span>
-        </motion.div>
+          className="absolute bottom-0 left-0 right-0 h-56 z-[15] pointer-events-none"
+          style={{ opacity: transOp, background: 'linear-gradient(to top, #faf9f7 0%, rgba(250,249,247,0.75) 38%, transparent 100%)' }}
+        />
 
-        {/* ══ VIDEO LOADING SHIMMER ══ */}
-        {!videoLoaded && (
-          <div className="absolute inset-0 z-[8] bg-stone-950 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin" />
+        {/* Loading overlay */}
+        {!videoReady && (
+          <div className="absolute inset-0 z-[25] bg-stone-950 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-10 h-10 rounded-full border-2 border-amber-400/22 border-t-amber-400 animate-spin" />
+              <span className="text-white/28 font-sans uppercase tracking-[0.32em]"
+                style={{ fontSize: '0.62rem' }}>Loading Experience</span>
+            </div>
           </div>
         )}
       </div>
