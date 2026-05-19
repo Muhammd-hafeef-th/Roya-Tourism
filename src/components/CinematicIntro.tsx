@@ -7,7 +7,7 @@ interface CinematicIntroProps {
 }
 
 /* Intro visible before exit begins (ms) */
-const INTRO_DURATION = 4000;
+const INTRO_DURATION = 3000;
 
 /* Brand gold matching index.css */
 const GOLD = '#c9a84c';

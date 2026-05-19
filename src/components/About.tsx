@@ -38,8 +38,11 @@ function ValueCard({ icon: Icon, title, desc, index }: { icon: typeof Award; tit
 }
 
 export default function About() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
+  const contentRef = useRef(null);
+  const isContentInView = useInView(contentRef, { once: true, margin: '-100px' });
+
+  const imageRef = useRef(null);
+  const isImageInView = useInView(imageRef, { once: true, margin: '-100px' });
 
   return (
     <section id="about" className="pt-10 pb-6 sm:pt-16 sm:pb-8 lg:pt-16 lg:pb-12 xl:pt-20 xl:pb-16 relative overflow-hidden bg-[#faf9f7]">
@@ -52,9 +55,9 @@ export default function About() {
 
           {/* ══ IMAGE SIDE ══ */}
           <motion.div
-            ref={ref}
+            ref={imageRef}
             initial={{ opacity: 0, x: -40, filter: 'blur(10px)' }}
-            animate={inView ? { opacity: 1, x: 0, filter: 'blur(0px)' } : {}}
+            animate={isImageInView ? { opacity: 1, x: 0, filter: 'blur(0px)' } : {}}
             transition={{ duration: 1, ease: [0.25, 1, 0.36, 1] }}
             className="relative w-full max-w-2xl lg:max-w-4xl mx-auto xl:max-w-none order-2 xl:order-1 mt-14 xl:mt-0"
           >
@@ -108,8 +111,9 @@ export default function About() {
           {/* ══ CONTENT SIDE ══ */}
           <div className="flex flex-col order-1 xl:order-2 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0">
             <motion.div
+              ref={contentRef}
               initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              animate={isContentInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex items-center gap-4 mb-6 sm:mb-8">
