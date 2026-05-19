@@ -6,7 +6,7 @@ interface CinematicIntroProps {
 }
 
 /* Intro visible before exit begins (ms) */
-const INTRO_DURATION = 3000;
+const INTRO_DURATION = 4000;
 
 /* Brand gold matching index.css */
 const GOLD = '#c9a84c';
@@ -17,8 +17,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    // Relying on a single timer completely prevents the component from getting "stuck".
-    // AnimatePresence will automatically wait for the exit animation to finish before unmounting.
+    // Relying on a single timer prevents the component from getting "stuck".
     const exitTimer = setTimeout(() => {
       setVisible(false);
     }, INTRO_DURATION);
@@ -28,9 +27,9 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   const preloadRef = useRef<HTMLVideoElement>(null);
 
   const ease = [0.16, 1, 0.3, 1] as const;
+  const slideEase = [0.76, 0, 0.24, 1] as const;
   
-  // Custom exit easing - fast start, extremely smooth deceleration. 
-  // Better than springs which can cause a "stuck" feeling while settling.
+  // Custom exit easing - fast start, extremely smooth deceleration.
   const exitEase = [0.25, 1, 0.3, 1] as const;
 
   return (
@@ -48,28 +47,20 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
               willChange: 'transform, opacity, filter',
               boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
             }}
-            initial={{ y: '0%', opacity: 1, filter: 'blur(0px)' }}
+            initial={{ x: '-100%' }}
+            animate={{ x: '0%', transition: { duration: 1.2, ease: slideEase } }}
             exit={{ 
-              y: '-100%', // Sliding UP is universally elegant and avoids horizontal motion sickness on large screens
+              x: '100%', // Sliding to the right per request
               opacity: 0, 
               filter: 'blur(8px)',
               transition: { duration: 1.1, ease: exitEase } 
             }}
           >
-            <video
-              ref={preloadRef}
-              src="/videos/hero-image-roya.mp4"
-              preload="auto"
-              muted
-              playsInline
-              className="absolute opacity-0 pointer-events-none w-0 h-0"
-              aria-hidden="true"
-            />
-
+    
             {/* ── Background Parallax Layer ── */}
             <motion.div 
               className="absolute inset-0"
-              exit={{ y: '15%', opacity: 0, transition: { duration: 1.1, ease: exitEase } }}
+              exit={{ x: '-15%', opacity: 0, transition: { duration: 1.1, ease: exitEase } }}
             >
               <motion.div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -79,7 +70,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                 }}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 2, ease: 'easeOut' }}
+                transition={{ duration: 2, delay: 0.8, ease: 'easeOut' }}
               />
               <motion.div
                 className="absolute bottom-[-10%] left-[-10%] rounded-full"
@@ -108,22 +99,22 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
             <motion.div 
               className="relative z-10 flex flex-col items-center text-center px-8 select-none"
               exit={{ 
-                y: '20%', // Creates deep parallax lag against the -100% upward slide
+                x: '-20%', // Deep parallax lag opposite to the rightward slide
                 opacity: 0, 
                 scale: 0.95,
                 transition: { duration: 0.9, ease: exitEase } 
               }}
             >
-              {/* Eyebrow */}
+              {/* Eyebrow / Year */}
               <motion.div
-                className="flex items-center gap-3 mb-8 sm:mb-10"
+                className="flex items-center gap-3 mb-8 sm:mb-10 lg:mb-12"
                 initial={{ opacity: 0, scaleX: 0 }}
                 animate={{ opacity: 1, scaleX: 1 }}
-                transition={{ duration: 1.2, delay: 0.2, ease }}
+                transition={{ duration: 1.2, delay: 1.0, ease }}
               >
                 <div className="h-px w-8 sm:w-14" style={{ background: `linear-gradient(to right, transparent, ${GOLD})` }} />
                 <span className="font-sans font-medium uppercase text-stone-500"
-                  style={{ fontSize: 'clamp(0.5rem, 1.5vw, 0.6rem)', letterSpacing: '0.5em' }}>
+                  style={{ fontSize: 'clamp(0.5rem, 1.5vw, 0.7rem)', letterSpacing: '0.5em' }}>
                   Est. 2026
                 </span>
                 <div className="h-px w-8 sm:w-14" style={{ background: `linear-gradient(to left, transparent, ${GOLD})` }} />
@@ -131,10 +122,10 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
 
               {/* Logo */}
               <motion.div
-                className="mb-7 sm:mb-8 relative mx-auto w-16 h-16 sm:w-20 sm:h-20"
-                initial={{ opacity: 0, y: 28, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 1.6, delay: 0.4, ease }}
+                className="mb-7 sm:mb-8 lg:mb-10 relative mx-auto w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24"
+                initial={{ opacity: 0, x: -40, filter: 'blur(10px)' }}
+                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 1.6, delay: 1.2, ease }}
               >
                 <motion.div
                   className="absolute inset-0 rounded-full"
@@ -152,7 +143,7 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                   <img
                     src="/logo.jpeg"
                     alt="Roya Tourism Logo"
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
+                    className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 rounded-full object-cover"
                     style={{
                       boxShadow: `0 4px 20px rgba(201,168,76,0.25), 0 0 0 1px rgba(201,168,76,0.25)`,
                     }}
@@ -164,13 +155,13 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
               <motion.h1
                 className="font-serif font-light leading-none mb-2 sm:mb-3"
                 style={{
-                  fontSize: 'clamp(2.8rem, 8vw, 6rem)',
+                  fontSize: 'clamp(3rem, 10vw, 7.5rem)',
                   letterSpacing: '0.04em',
                   color: '#1c1917',
                 }}
-                initial={{ opacity: 0, y: 26, filter: 'blur(14px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 1.8, delay: 0.65, ease }}
+                initial={{ opacity: 0, x: 40, filter: 'blur(14px)' }}
+                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 1.8, delay: 1.4, ease }}
               >
                 Roya{' '}
                 <span
@@ -189,37 +180,37 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
               </motion.h1>
 
               <motion.div
-                className="mb-4 sm:mb-5"
+                className="mb-4 sm:mb-5 lg:mb-7"
                 style={{
                   height: '2px',
-                  width: 'clamp(50px, 12vw, 100px)',
+                  width: 'clamp(60px, 15vw, 120px)',
                   background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`,
                 }}
                 initial={{ scaleX: 0, opacity: 0 }}
                 animate={{ scaleX: 1, opacity: 1 }}
-                transition={{ duration: 1.3, delay: 1.05, ease }}
+                transition={{ duration: 1.3, delay: 1.8, ease }}
               />
 
               <motion.p
                 className="font-sans font-light text-stone-500 uppercase"
                 style={{
-                  fontSize: 'clamp(0.56rem, 1.8vw, 0.72rem)',
+                  fontSize: 'clamp(0.6rem, 2vw, 0.8rem)',
                   letterSpacing: '0.32em',
                 }}
                 initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 1.6, delay: 1.25, ease }}
+                transition={{ duration: 1.6, delay: 2.0, ease }}
               >
                 Luxury Journeys Beyond Horizons
               </motion.p>
 
               {/* Progress Bar */}
               <motion.div
-                className="mt-12 sm:mt-14 relative overflow-hidden rounded-full"
-                style={{ width: 'clamp(80px, 15vw, 120px)', height: '1.5px', background: 'rgba(201,168,76,0.18)' }}
+                className="mt-12 sm:mt-16 lg:mt-20 relative overflow-hidden rounded-full"
+                style={{ width: 'clamp(90px, 18vw, 140px)', height: '1.5px', background: 'rgba(201,168,76,0.18)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.55, duration: 0.8 }}
+                transition={{ delay: 2.3, duration: 0.8 }}
               >
                 <motion.div
                   className="absolute inset-y-0 left-0 rounded-full"
@@ -229,30 +220,30 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
                   }}
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{ duration: 1.2, delay: 1.6, ease: 'easeInOut' }}
+                  transition={{ duration: 1.2, delay: 2.4, ease: 'easeInOut' }}
                 />
               </motion.div>
 
               <motion.p
-                className="mt-3 font-sans font-light text-stone-400 uppercase tracking-[0.3em]"
+                className="mt-3 sm:mt-4 font-sans font-light text-stone-400 uppercase tracking-[0.3em]"
                 style={{ fontSize: '0.5rem' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.8, duration: 0.8 }}
+                transition={{ delay: 2.6, duration: 0.8 }}
               >
                 Preparing your journey
               </motion.p>
             </motion.div>
 
             {/* ── Corner L-brackets Parallax ── */}
-            {(['top-5 left-5', 'top-5 right-5', 'bottom-5 left-5', 'bottom-5 right-5'] as const).map((pos, i) => (
+            {(['top-4 left-4', 'top-4 right-4', 'bottom-4 left-4', 'bottom-4 right-4'] as const).map((pos, i) => (
               <motion.div
                 key={i}
-                className={`absolute ${pos} w-5 h-5 sm:w-7 sm:h-7 pointer-events-none`}
+                className={`absolute ${pos} w-5 h-5 sm:w-7 sm:h-7 pointer-events-none hidden sm:block`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, y: '10px', transition: { duration: 0.6 } }}
-                transition={{ delay: 0.7 + i * 0.08, duration: 1 }}
+                exit={{ opacity: 0, x: '15px', transition: { duration: 0.6 } }}
+                transition={{ delay: 1.5 + i * 0.08, duration: 1 }}
               >
                 <div
                   className={`absolute ${i < 2 ? 'top-0' : 'bottom-0'} ${i % 2 === 0 ? 'left-0' : 'right-0'} w-full h-px`}
