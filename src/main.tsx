@@ -20,6 +20,8 @@ const lenis = new Lenis({
   infinite: false,
 });
 
+(window as any).lenis = lenis;
+
 // Single RAF loop — Framer Motion useScroll reads native scrollY,
 // Lenis intercepts wheel/touch and drives scrollY smoothly.
 function rafLoop(time: number) {

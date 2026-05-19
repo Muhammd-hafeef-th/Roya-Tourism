@@ -99,7 +99,11 @@ export default function InternationalTrips() {
 
   // Scroll to top when component mounts
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if ((window as any).lenis) {
+      (window as any).lenis.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, []);
 
   // Filter packages
@@ -119,7 +123,13 @@ export default function InternationalTrips() {
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
     setCurrentPage(1);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 10);
+    setTimeout(() => {
+      if ((window as any).lenis) {
+        (window as any).lenis.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    }, 10);
   };
 
   return (
@@ -132,7 +142,7 @@ export default function InternationalTrips() {
         {/* Header / Nav */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
           <Link 
-            to="/#packages"
+            to="/#home"
             className="flex items-center gap-3 text-stone-500 hover:text-[#c9a84c] transition-colors self-start md:self-auto group"
           >
             <div className="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center group-hover:border-[#c9a84c] shadow-sm transition-all group-hover:-translate-x-1">
@@ -239,7 +249,11 @@ export default function InternationalTrips() {
             <button 
               onClick={() => {
                 setCurrentPage(p => Math.max(1, p - 1));
-                setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 10);
+                if ((window as any).lenis) {
+                  (window as any).lenis.scrollTo(0, { duration: 1 });
+                } else {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
               }}
               disabled={currentPage === 1}
               className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-stone-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-stone-50 hover:border-[#c9a84c]/50 transition-all shadow-sm"
@@ -252,7 +266,11 @@ export default function InternationalTrips() {
             <button 
               onClick={() => {
                 setCurrentPage(p => Math.min(totalPages, p + 1));
-                setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 10);
+                if ((window as any).lenis) {
+                  (window as any).lenis.scrollTo(0, { duration: 1 });
+                } else {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
               }}
               disabled={currentPage === totalPages}
               className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-stone-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-stone-50 hover:border-[#c9a84c]/50 transition-all shadow-sm"

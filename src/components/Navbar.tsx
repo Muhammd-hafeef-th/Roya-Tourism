@@ -14,7 +14,7 @@ const navLinks = [
 ];
 
 /* ─── Scroll threshold helper ─────────────────────────────────── */
-function useScrolled(px = 80) {
+function useScrolled(threshold: number | (() => number)) {
   const [scrolled, setScrolled] = useState(false);
   
   useEffect(() => {
@@ -22,7 +22,8 @@ function useScrolled(px = 80) {
     const h = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const isScrolled = window.scrollY > px;
+          const limit = typeof threshold === 'function' ? threshold() : threshold;
+          const isScrolled = window.scrollY > limit;
           setScrolled(prev => (prev !== isScrolled ? isScrolled : prev));
           ticking = false;
         });
@@ -33,13 +34,16 @@ function useScrolled(px = 80) {
     h(); // Initial check
     window.addEventListener('scroll', h, { passive: true });
     return () => window.removeEventListener('scroll', h);
-  }, [px]);
+  }, [threshold]);
   
   return scrolled;
 }
 
-export default function Navbar() {
-  const scrolled = useScrolled(60);
+export default function Navbar({ startAnimation = true }: { startAnimation?: boolean }) {
+  const scrolled = useScrolled(() => {
+    const hero = document.getElementById('hero');
+    return hero ? hero.offsetHeight - 120 : 80;
+  });
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
@@ -92,7 +96,7 @@ export default function Navbar() {
       ════════════════════════════════════════════════ */}
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        animate={startAnimation ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         className={`
           fixed top-0 left-0 right-0 z-50

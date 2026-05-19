@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface CinematicIntroProps {
   onComplete: () => void;
+  onExitStart?: () => void;
 }
 
 /* Intro visible before exit begins (ms) */
@@ -13,16 +14,17 @@ const GOLD = '#c9a84c';
 const GOLD_LIGHT = 'rgba(201,168,76,0.18)';
 const GOLD_MID = 'rgba(201,168,76,0.55)';
 
-export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
+export default function CinematicIntro({ onComplete, onExitStart }: CinematicIntroProps) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     // Relying on a single timer prevents the component from getting "stuck".
     const exitTimer = setTimeout(() => {
       setVisible(false);
+      if (onExitStart) onExitStart();
     }, INTRO_DURATION);
     return () => clearTimeout(exitTimer);
-  }, []);
+  }, [onExitStart]);
 
   const preloadRef = useRef<HTMLVideoElement>(null);
 
