@@ -1,10 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ArrowRight, MapPin } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const WORDS = ['Journey', 'Beyond', 'Horizons'];
 
@@ -40,6 +36,10 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
   // Massive scroll area for the cinematic frame sequence
   const sectionH = isMobile ? '160vh' : isTablet ? '200vh' : '240vh';
 
+  // --- UI Motion Values ---
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
+  const p = useSpring(scrollYProgress, { stiffness: 35, damping: 18, restDelta: 0.001 });
+
   // --- Canvas Sequence Logic ---
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
@@ -49,12 +49,11 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
     if (!ctx) return;
     
     const images: HTMLImageElement[] = [];
-    const playhead = { frame: 0 };
     let loadedCount = 0;
     
-    const render = () => {
+    const render = (frame: number) => {
       if (!canvas || !ctx) return;
-      const img = images[playhead.frame];
+      const img = images[frame];
       if (!img || !img.complete) return;
       
       const canvasRatio = canvas.width / canvas.height;
@@ -87,7 +86,10 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
       img.onload = () => {
         loadedCount++;
         setImagesLoaded(loadedCount);
-        if (i === 1) render(); // Draw first frame immediately when ready
+        const currentFrame = Math.round(p.get() * (FRAME_COUNT - 1));
+        if (images.indexOf(img) === currentFrame) {
+          render(currentFrame);
+        }
       };
     }
     
@@ -97,35 +99,24 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
-      render();
+      const currentFrame = Math.round(p.get() * (FRAME_COUNT - 1));
+      render(currentFrame);
     };
     
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas, { passive: true });
     
-    // GSAP ScrollTrigger tied directly to frame index
-    const st = ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 0.35, // Decreased scrub lag for a more responsive and user friendly feel
-      animation: gsap.to(playhead, {
-        frame: FRAME_COUNT - 1,
-        snap: 'frame',
-        ease: 'none',
-        onUpdate: render
-      })
+    // Synchronize frame rendering directly to the spring-smoothed scroll progress
+    const unsubscribe = p.on('change', (latest) => {
+      const currentFrame = Math.round(latest * (FRAME_COUNT - 1));
+      render(currentFrame);
     });
     
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      st.kill();
+      unsubscribe();
     };
-  }, []);
-
-  // --- UI Motion Values ---
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
-  const p = useSpring(scrollYProgress, { stiffness: 35, damping: 18, restDelta: 0.001 });
+  }, [p]);
 
   // Stage 1 Transforms (Journey Beyond Horizons)
   const textY = useTransform(p, [0, 0.32], ['0%', '-20%']);
@@ -180,7 +171,9 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
         {/* ══ CINEMATIC ATMOSPHERE & LIGHTING ══ */}
         {/* Warm environmental glow */}
         <div className="absolute inset-0 pointer-events-none mix-blend-screen bg-[radial-gradient(ellipse_at_top,rgba(180,140,90,0.12)_0%,transparent_60%)]" />
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-stone-950/20 via-transparent to-stone-950/90" />
+        {/* Balanced overlays for high contrast and readability of white text */}
+        <div className="absolute inset-0 pointer-events-none bg-black/40 md:bg-black/20" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-stone-950/50 via-stone-950/30 to-stone-950/95" />
         
         {/* Dynamic Vignette */}
         <motion.div 
@@ -195,7 +188,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
           className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none px-6 sm:px-12"
           style={{ y: textY, opacity: textOp, scale: textScale }}
         >
-          <div className="text-center w-full max-w-6xl mx-auto pointer-events-auto">
+          <div className="text-center w-full max-w-6xl mx-auto pointer-events-auto flex flex-col items-center justify-center">
             
             {/* Premium Eyebrow */}
             <motion.div
@@ -217,30 +210,41 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
                 className="font-serif font-light text-white leading-[1.05] tracking-tight"
                 style={{ fontSize: headlineSize }}
               >
-                {WORDS.map((word, i) => (
-                  <motion.span 
-                    key={word}
-                    className="inline-block mr-[0.2em] last:mr-0"
-                    initial={{ opacity: 0, y: "80%", filter: 'blur(10px)' }}
-                    animate={startAnimation ? { opacity: 1, y: "0%", filter: 'blur(0px)' } : { opacity: 0, y: "80%", filter: 'blur(10px)' }}
-                    transition={{ duration: 1.4, delay: 0.3 + i * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    {i === 2 ? (
-                      <span className="italic relative">
-                        <span 
-                          className="relative z-10 text-transparent bg-clip-text"
-                          style={{
-                            backgroundImage: 'linear-gradient(120deg, #E2C275 0%, #FFF3D3 40%, #D4AF37 60%, #E2C275 100%)',
-                            backgroundSize: '200% auto',
-                            animation: 'shimmer 8s linear infinite'
-                          }}
-                        >
-                          {word}
+                {WORDS.map((word, i) => {
+                  const span = (
+                    <motion.span 
+                      key={word}
+                      className="inline-block mr-[0.2em] last:mr-0"
+                      initial={{ opacity: 0, y: "80%", filter: 'blur(10px)' }}
+                      animate={startAnimation ? { opacity: 1, y: "0%", filter: 'blur(0px)' } : { opacity: 0, y: "80%", filter: 'blur(10px)' }}
+                      transition={{ duration: 1.4, delay: 0.3 + i * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {i === 2 ? (
+                        <span className="italic relative">
+                          <span 
+                            className="relative z-10 text-transparent bg-clip-text"
+                            style={{
+                              backgroundImage: 'linear-gradient(120deg, #E2C275 0%, #FFF3D3 40%, #D4AF37 60%, #E2C275 100%)',
+                              backgroundSize: '200% auto',
+                              animation: 'shimmer 8s linear infinite'
+                            }}
+                          >
+                            {word}
+                          </span>
                         </span>
+                      ) : word}
+                    </motion.span>
+                  );
+                  if (i === 2) {
+                    return (
+                      <span key={word} className="contents">
+                        <br className="sm:hidden" />
+                        {span}
                       </span>
-                    ) : word}
-                  </motion.span>
-                ))}
+                    );
+                  }
+                  return span;
+                })}
               </div>
             </div>
 
@@ -249,13 +253,47 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               initial={{ opacity: 0, y: 20 }}
               animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 1.5, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="font-sans font-light text-white/60 mx-auto max-w-[22rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide"
+              className="font-sans font-light text-stone-200/90 sm:text-white/60 mx-auto max-w-[22rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide"
               style={{ fontSize: subSize }}
             >
               Luxury experiences crafted through unforgettable destinations,{' '}
-              <span className="text-white/90">spiritual journeys</span>, and{' '}
+              <span className="text-white/95">spiritual journeys</span>, and{' '}
               <span className="text-[#E2C275]">timeless adventures</span>.
             </motion.p>
+
+            {/* CTA ACTIONS (Moved inside flex container to prevent overlapping) */}
+            <motion.div
+              style={{ y: ctaY, opacity: ctaOp }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 1.5, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-4 sm:gap-6 items-center w-full justify-center"
+            >
+              {/* Primary Minimal Luxury Button */}
+              <button
+                onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative px-6 sm:px-12 py-3.5 sm:py-5 rounded-full font-sans overflow-hidden transition-all duration-700 hover:scale-[1.02] active:scale-95 w-full max-w-[280px] sm:w-auto min-w-[180px] sm:min-w-[200px] border border-transparent hover:border-amber-200/30"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-stone-100 to-white" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-[#E2C275] to-[#F5DF96] transition-opacity duration-700" />
+                <span className="relative z-10 flex items-center justify-center gap-3 text-stone-900 group-hover:text-stone-950 font-medium tracking-[0.2em] uppercase text-[0.7rem] sm:text-xs transition-colors duration-700">
+                  Begin Your Journey
+                  <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform duration-500 ease-out" />
+                </span>
+              </button>
+
+              {/* Secondary Glassmorphism Button */}
+              <button
+                onClick={() => document.querySelector('#packages')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative px-6 sm:px-12 py-3.5 sm:py-5 rounded-full font-sans text-white w-full max-w-[280px] sm:w-auto min-w-[180px] sm:min-w-[200px] transition-all duration-700 hover:scale-[1.02] active:scale-95 border border-white/20 hover:border-[#E2C275]/50"
+              >
+                <div className="absolute inset-0 rounded-full bg-black/10 backdrop-blur-md group-hover:bg-black/20 transition-all duration-700" />
+                <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_30px_rgba(226,194,117,0.15)] transition-opacity duration-700" />
+                <span className="relative z-10 font-medium tracking-[0.2em] uppercase text-[0.7rem] sm:text-xs text-white/90 group-hover:text-white transition-colors duration-700">
+                  Explore Journeys
+                </span>
+              </button>
+            </motion.div>
           </div>
         </motion.div>
 
@@ -280,7 +318,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
                 className="font-serif font-light text-white leading-[1.05] tracking-tight"
                 style={{ fontSize: headlineSize }}
               >
-                Spiritual{' '}
+                Spiritual <br className="sm:hidden" />{' '}
                 <span 
                   className="italic text-transparent bg-clip-text"
                   style={{
@@ -325,7 +363,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
                 className="font-serif font-light text-white leading-[1.05] tracking-tight"
                 style={{ fontSize: headlineSize }}
               >
-                Bespoke{' '}
+                Bespoke <br className="sm:hidden" />{' '}
                 <span 
                   className="italic text-transparent bg-clip-text"
                   style={{
@@ -349,43 +387,6 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
           </div>
         </motion.div>
 
-        {/* ══ CTA ACTIONS ══ */}
-        <motion.div
-          className="absolute inset-x-0 bottom-[22%] sm:bottom-[20%] lg:bottom-[18%] z-20 flex justify-center pointer-events-none px-6"
-          style={{ y: ctaY, opacity: ctaOp }}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 1.5, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center pointer-events-auto w-full sm:w-auto"
-          >
-            {/* Primary Minimal Luxury Button */}
-            <button
-              onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group relative px-6 sm:px-12 py-3.5 sm:py-5 rounded-full font-sans overflow-hidden transition-all duration-700 hover:scale-[1.02] active:scale-95 w-full sm:w-auto min-w-[180px] sm:min-w-[200px] border border-transparent hover:border-amber-200/30"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-stone-100 to-white" />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-[#E2C275] to-[#F5DF96] transition-opacity duration-700" />
-              <span className="relative z-10 flex items-center justify-center gap-3 text-stone-900 group-hover:text-stone-950 font-medium tracking-[0.2em] uppercase text-[0.7rem] sm:text-xs transition-colors duration-700">
-                Begin Your Journey
-                <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform duration-500 ease-out" />
-              </span>
-            </button>
-
-            {/* Secondary Glassmorphism Button */}
-            <button
-              onClick={() => document.querySelector('#packages')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group relative px-6 sm:px-12 py-3.5 sm:py-5 rounded-full font-sans text-white w-full sm:w-auto min-w-[180px] sm:min-w-[200px] transition-all duration-700 hover:scale-[1.02] active:scale-95 border border-white/20 hover:border-[#E2C275]/50"
-            >
-              <div className="absolute inset-0 rounded-full bg-black/10 backdrop-blur-md group-hover:bg-black/20 transition-all duration-700" />
-              <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_30px_rgba(226,194,117,0.15)] transition-opacity duration-700" />
-              <span className="relative z-10 font-medium tracking-[0.2em] uppercase text-[0.7rem] sm:text-xs text-white/90 group-hover:text-white transition-colors duration-700">
-                Explore Journeys
-              </span>
-            </button>
-          </motion.div>
-        </motion.div>
 
         {/* ══ STATIC OVERLAYS ══ */}
         
@@ -432,7 +433,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
 
         {/* Masked Cinematic Transition to next section */}
         <motion.div
-          className="absolute bottom-0 left-0 right-0 h-[30vh] z-[40] pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-[15vh] z-[40] pointer-events-none"
           style={{
             opacity: transOp,
             background: 'linear-gradient(to top, #faf9f7 0%, rgba(250,249,247,0.9) 20%, rgba(250,249,247,0.4) 60%, transparent 100%)'

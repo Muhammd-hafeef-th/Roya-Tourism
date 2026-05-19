@@ -56,7 +56,7 @@ export default function About() {
           {/* ══ IMAGE SIDE ══ */}
           <motion.div
             ref={imageRef}
-            initial={{ opacity: 0, x: -40, filter: 'blur(10px)' }}
+            initial={{ opacity: 0, x: -40, filter: 'blur(4px)' }}
             animate={isImageInView ? { opacity: 1, x: 0, filter: 'blur(0px)' } : {}}
             transition={{ duration: 1, ease: [0.25, 1, 0.36, 1] }}
             className="relative w-full max-w-2xl lg:max-w-4xl mx-auto xl:max-w-none order-2 xl:order-1 mt-14 xl:mt-0"
