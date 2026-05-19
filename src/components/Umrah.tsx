@@ -144,8 +144,11 @@ function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number })
 }
 
 export default function Umrah() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
+  const headerRef = useRef(null);
+  const isHeaderInView = useInView(headerRef, { once: true, margin: '-100px' });
+
+  const badgesRef = useRef(null);
+  const isBadgesInView = useInView(badgesRef, { once: true, margin: '-100px' });
 
   return (
     <section id="umrah" className="pt-12 pb-12 lg:pt-20 lg:pb-24 relative overflow-hidden bg-[#faf9f7]">
@@ -157,9 +160,9 @@ export default function Umrah() {
 
       <div className="container-responsive max-w-[1400px] relative z-10">
         <motion.div
-          ref={ref}
+          ref={headerRef}
           initial={{ opacity: 0, y: 40 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center mb-16 lg:mb-24"
         >
@@ -192,9 +195,10 @@ export default function Umrah() {
 
         {/* Trust badges */}
         <motion.div
+          ref={badgesRef}
           initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          animate={isBadgesInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.2 }}
           className="mt-20 lg:mt-32 grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto"
         >
           {[
