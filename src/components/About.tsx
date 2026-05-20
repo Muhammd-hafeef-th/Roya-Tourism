@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Award, Heart, Shield, Clock } from 'lucide-react';
 
 const values = [
@@ -12,16 +12,17 @@ const values = [
     desc: 'Comfortable and trusted international & domestic travel support.'
   },];
 
-function ValueCard({ icon: Icon, title, desc, index }: { icon: typeof Award; title: string; desc: string; index: number }) {
+const ValueCard = React.memo(function ValueCard({ icon: Icon, title, desc, index }: { icon: typeof Award; title: string; desc: string; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-50px' });
+  const prefersReduced = useReducedMotion();
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+      initial={prefersReduced ? undefined : { opacity: 0, y: 30 }}
+      animate={!prefersReduced && inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
       className="group flex flex-col gap-2 sm:gap-3"
     >
       <div className="flex items-center gap-4 sm:gap-5">
@@ -35,7 +36,7 @@ function ValueCard({ icon: Icon, title, desc, index }: { icon: typeof Award; tit
       </p>
     </motion.div>
   );
-}
+});
 
 export default function About() {
   const contentRef = useRef(null);
@@ -43,6 +44,7 @@ export default function About() {
 
   const imageRef = useRef(null);
   const isImageInView = useInView(imageRef, { once: true, margin: '-100px' });
+  const prefersReduced = useReducedMotion();
 
   return (
     <section id="about" className="pt-10 pb-6 sm:pt-16 sm:pb-8 lg:pt-16 lg:pb-12 xl:pt-20 xl:pb-16 relative overflow-hidden bg-[#faf9f7]">
@@ -69,7 +71,9 @@ export default function About() {
               <img
                 src="/aboutImage.webp"
                 alt="Luxury travel experience"
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-stone-900/10 to-transparent pointer-events-none" />
 
@@ -82,7 +86,7 @@ export default function About() {
                       'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100',
                       'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100',
                     ].map((src, i) => (
-                      <img key={i} src={src} alt="traveller" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white object-cover shadow-sm" />
+                      <img key={i} src={src} alt="traveller" loading="lazy" decoding="async" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white object-cover shadow-sm" />
                     ))}
                   </div>
                   <div className="flex flex-col">
@@ -98,7 +102,7 @@ export default function About() {
             {/* Floating Elite Card */}
             <motion.div
               className="absolute -right-2 top-8 sm:-right-8 sm:top-16 bg-stone-900/95 backdrop-blur-md rounded-2xl p-5 sm:p-7 border border-stone-700 shadow-2xl max-w-[160px] sm:max-w-[220px]"
-              animate={{ y: [-12, 12, -12] }}
+              animate={!prefersReduced ? { y: [-12, 12, -12] } : undefined}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
             >
               <div className="text-gold-400 font-serif text-3xl sm:text-5xl font-bold tracking-tight">Elite</div>

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useInView, useReducedMotion } from 'framer-motion';
 import { CalendarCheck, Map, Plane, ShieldCheck } from 'lucide-react';
 
 const steps = [
@@ -31,6 +31,8 @@ const steps = [
 
 export default function ScrollJourney() {
   const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.1 });
+  const prefersReduced = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
@@ -79,9 +81,9 @@ export default function ScrollJourney() {
           <div className="relative min-h-[520px] perspective-stage sm:min-h-[560px]" style={{ perspective: '1000px' }}>
             <motion.div
               className="absolute left-0 right-0 top-10 h-px bg-gradient-to-r from-transparent via-gold-300 to-transparent"
-              style={{ y: planeY }}
+              style={inView && !prefersReduced ? { y: planeY } : {}}
             />
-            <motion.div className="absolute top-6 z-20" style={{ x: planeX, y: planeY }}>
+            <motion.div className="absolute top-6 z-20" style={inView && !prefersReduced ? { x: planeX, y: planeY } : {}}>
               <div className="journey-plane">
                 <Plane size={22} />
               </div>
@@ -89,14 +91,14 @@ export default function ScrollJourney() {
 
             <motion.div
               className="relative mx-auto grid max-w-xl gap-5"
-              style={{
+              style={inView && !prefersReduced ? {
                 rotateX,
                 rotateZ,
                 y,
                 transformStyle: 'preserve-3d',
                 transform: 'translateZ(0)',
                 willChange: 'transform',
-              }}
+              } : { transform: 'none' }}
             >
               {steps.map((step, index) => (
                 <motion.article

@@ -1,4 +1,5 @@
 import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Footer() {
@@ -6,19 +7,45 @@ export default function Footer() {
   const location = useLocation();
   const isHome = location.pathname === '/';
 
-  const handleNav = (href: string) => {
-    // If it's a page route, just navigate directly
+  const handleNav = useCallback((href: string) => {
+    // Normalize incoming hrefs
+    if (!href) return;
     if (href.startsWith('/')) {
       navigate(href);
       return;
     }
 
+    const anchor = href.startsWith('#') ? href : `#${href}`;
+
     if (isHome) {
-      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+      const el = document.querySelector(anchor) as HTMLElement | null;
+      if (el) {
+        try {
+          el.scrollIntoView({ behavior: 'smooth' });
+          el.focus({ preventScroll: true });
+        } catch {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+        return;
+      }
+
+      // Retry a few times if element isn't immediately available (SPA routing timing)
+      let attempts = 0;
+      const retry = () => {
+        const el2 = document.querySelector(anchor) as HTMLElement | null;
+        if (el2) {
+          try { el2.scrollIntoView({ behavior: 'smooth' }); el2.focus({ preventScroll: true }); } catch { el2.scrollIntoView({ behavior: 'smooth' }); }
+        } else if (attempts < 10) {
+          attempts += 1;
+          window.setTimeout(retry, 150);
+        }
+      };
+      retry();
     } else {
-      navigate('/' + href);
+      // navigate to home with hash
+      navigate('/' + anchor);
     }
-  };
+  }, [isHome, navigate]);
 
   return (
     <footer className="bg-stone-950 relative overflow-hidden pt-20 pb-10 lg:pt-28 lg:pb-12 border-t border-stone-800">
@@ -35,7 +62,7 @@ export default function Footer() {
           
           {/* Brand Column (Spans 4) */}
           <div className="lg:col-span-4 lg:pr-12">
-            <button onClick={() => handleNav('#hero')} className="flex items-center gap-4 group mb-8">
+            <button type="button" onClick={() => handleNav('#hero')} className="flex items-center gap-4 group mb-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/60">
               <img src="/logo1.png" alt="Roya Tourism" className="w-14 h-14 object-contain group-hover:-rotate-12 transition-transform duration-700" />
               <div className="flex flex-col text-left">
                 <span className="font-serif text-3xl sm:text-4xl font-medium text-white tracking-wider leading-none">Roya</span>
@@ -46,15 +73,22 @@ export default function Footer() {
               Crafting extraordinary journeys across the globe. From sacred spiritual experiences to unparalleled luxury getaways — your world awaits.
             </p>
             <div className="flex items-center gap-3">
-              {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
-                <a 
-                  key={i} 
-                  href="#"
-                  className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-stone-900 hover:bg-[#c9a84c] hover:border-[#c9a84c] transition-all duration-400 shadow-sm"
+              {useMemo(() => [
+                { Icon: Instagram, href: '#' , label: 'Instagram' },
+                { Icon: Facebook, href: '#' , label: 'Facebook' },
+                { Icon: Twitter, href: '#' , label: 'Twitter' },
+                { Icon: Youtube, href: '#' , label: 'YouTube' },
+              ].map((s, i) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  aria-label={s.label}
+                  onClick={(e) => { if (s.href === '#') { e.preventDefault(); /* no-op placeholder */ } }}
+                  className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-stone-900 hover:bg-[#c9a84c] hover:border-[#c9a84c] transition-all duration-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/40"
                 >
-                  <Icon size={18} />
+                  <s.Icon size={18} />
                 </a>
-              ))}
+              )), [])}
             </div>
           </div>
 
@@ -67,17 +101,14 @@ export default function Footer() {
               <span className="w-6 h-px bg-[#c9a84c]/50"></span> Journeys
             </h4>
             <ul className="space-y-4">
-              {[
+              {useMemo(() => [
                 { label: 'Umrah Packages', href: '#umrah' },
                 { label: 'Hajj Packages', href: '#umrah' },
                 { label: 'Global Escapes', href: '#packages' },
                 { label: 'Oman Signature', href: '/international-trips' },
-              ].map((link) => (
+              ], []).map((link) => (
                 <li key={link.label}>
-                  <button 
-                    onClick={() => handleNav(link.href)}
-                    className="text-sm text-white/50 hover:text-[#c9a84c] transition-colors text-left"
-                  >
+                  <button type="button" onClick={() => handleNav(link.href)} className="text-sm text-white/50 hover:text-[#c9a84c] transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/40">
                     {link.label}
                   </button>
                 </li>
@@ -91,17 +122,14 @@ export default function Footer() {
               <span className="w-6 h-px bg-[#c9a84c]/50"></span> Company
             </h4>
             <ul className="space-y-4">
-              {[
+              {useMemo(() => [
                 { label: 'About Roya', href: '#about' },
                 { label: 'Travel Gallery', href: '#gallery' },
                 { label: 'Contact Us', href: '#contact' },
                 { label: 'Privacy Policy', href: '#' },
-              ].map((link) => (
+              ], []).map((link) => (
                 <li key={link.label}>
-                  <button 
-                    onClick={() => handleNav(link.href)}
-                    className="text-sm text-white/50 hover:text-white transition-colors text-left"
-                  >
+                  <button type="button" onClick={() => handleNav(link.href)} className="text-sm text-white/50 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/40">
                     {link.label}
                   </button>
                 </li>
@@ -115,7 +143,7 @@ export default function Footer() {
               <span className="w-6 h-px bg-[#c9a84c]/50"></span> Get in Touch
             </h4>
             <div className="space-y-6">
-              <a href="tel:+1234567890" className="flex items-start gap-4 group">
+              <a href="tel:+1234567890" className="flex items-start gap-4 group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/40">
                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c]/20 transition-colors">
                   <Phone size={16} className="text-[#c9a84c]" />
                 </div>
@@ -124,7 +152,7 @@ export default function Footer() {
                   <p className="text-sm sm:text-base font-medium text-white/80 group-hover:text-white transition-colors">+1 234 567 890</p>
                 </div>
               </a>
-              <a href="mailto:hello@royatourism.com" className="flex items-start gap-4 group">
+              <a href="mailto:hello@royatourism.com" className="flex items-start gap-4 group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/40">
                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c]/20 transition-colors">
                   <Mail size={16} className="text-[#c9a84c]" />
                 </div>

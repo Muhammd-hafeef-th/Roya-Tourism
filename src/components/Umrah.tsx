@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useRef, useCallback } from 'react';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Star, Hotel, Plane, Shield, MessageCircle, Check } from 'lucide-react';
 
 const packages = [
@@ -38,9 +38,10 @@ const packages = [
   },
 ];
 
-function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number }) {
+const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-50px' });
+  const prefersReduced = useReducedMotion();
   const isMiddle = pkg.accent;
 
   return (
@@ -61,7 +62,9 @@ function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number })
         <img
           src={pkg.image}
           alt={pkg.name}
-          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover transition-transform duration-[1.6s] ease-out will-change-transform group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900/90 via-stone-900/20 to-transparent z-10" />
 
@@ -73,17 +76,7 @@ function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number })
             {pkg.badge}
           </div>
         )}
-
-        <div className="absolute bottom-6 left-0 w-full text-center z-20 px-6">
-          <span className="inline-block bg-[#c9a84c] text-white text-[10px] font-bold uppercase tracking-[0.25em] px-3 py-1.5 rounded-full mb-4 shadow-md">
-            {pkg.duration}
-          </span>
-          <h3 className="font-serif text-3xl sm:text-4xl text-white font-medium leading-tight drop-shadow-lg">
-            {pkg.name}
-          </h3>
-        </div>
       </div>
-
       {/* Content Section */}
       <div className="px-4 sm:px-6 pt-8 pb-4 flex-grow flex flex-col">
         <div className="flex flex-col items-center justify-center mb-8 pb-8 border-b border-stone-100">
@@ -141,7 +134,7 @@ function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number })
       </div>
     </motion.div>
   );
-}
+});
 
 export default function Umrah() {
   const headerRef = useRef(null);
@@ -149,6 +142,7 @@ export default function Umrah() {
 
   const badgesRef = useRef(null);
   const isBadgesInView = useInView(badgesRef, { once: true, margin: '-100px' });
+  const prefersReduced = useReducedMotion();
 
   return (
     <section id="umrah" className="pt-12 pb-12 lg:pt-20 lg:pb-24 relative overflow-hidden bg-[#faf9f7]">

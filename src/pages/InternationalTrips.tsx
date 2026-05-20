@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, MapPin, Clock, Hotel, Star, MessageCircle, ChevronRight, ChevronLeft as ChevronLeftIcon, Compass } from 'lucide-react';
 import { internationalPackages } from '../data/packagesData';
+
+type LenisScrollWindow = Window & {
+  lenis?: { scrollTo(target: number, options: { immediate?: boolean; duration?: number }): void };
+};
 
 const CATEGORIES = ['All', 'Oman', 'Middle East', 'Asia', 'Europe'];
 const ITEMS_PER_PAGE = 6;
@@ -99,37 +103,44 @@ export default function InternationalTrips() {
 
   // Scroll to top when component mounts
   useEffect(() => {
-    if ((window as any).lenis) {
-      (window as any).lenis.scrollTo(0, { immediate: true });
+    const lenis = (window as unknown as LenisScrollWindow).lenis;
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
     } else {
       window.scrollTo(0, 0);
     }
   }, []);
 
-  // Filter packages
-  const filteredPackages = internationalPackages.filter(pkg => {
-    if (activeCategory === 'All') return true;
-    return pkg.category === activeCategory;
-  });
+  // Reset page and scroll when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+    const lenis = (window as unknown as LenisScrollWindow).lenis;
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [activeCategory]);
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredPackages.length / ITEMS_PER_PAGE);
-  const currentPackages = filteredPackages.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+  // Filter packages
+  const filteredPackages = useMemo(
+    () => internationalPackages.filter(pkg => activeCategory === 'All' || pkg.category === activeCategory),
+    [activeCategory]
   );
 
-  // Handle category change (reset to page 1)
+  // Pagination logic
+  const totalPages = useMemo(
+    () => Math.ceil(filteredPackages.length / ITEMS_PER_PAGE),
+    [filteredPackages]
+  );
+  const currentPackages = useMemo(
+    () => filteredPackages.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [filteredPackages, currentPage]
+  );
+
+  // Handle category change
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
-    setCurrentPage(1);
-    setTimeout(() => {
-      if ((window as any).lenis) {
-        (window as any).lenis.scrollTo(0, { immediate: true });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }
-    }, 10);
   };
 
   return (
@@ -249,8 +260,9 @@ export default function InternationalTrips() {
             <button 
               onClick={() => {
                 setCurrentPage(p => Math.max(1, p - 1));
-                if ((window as any).lenis) {
-                  (window as any).lenis.scrollTo(0, { duration: 1 });
+                const lenis = (window as unknown as LenisScrollWindow).lenis;
+                if (lenis) {
+                  lenis.scrollTo(0, { duration: 1 });
                 } else {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
@@ -266,8 +278,9 @@ export default function InternationalTrips() {
             <button 
               onClick={() => {
                 setCurrentPage(p => Math.min(totalPages, p + 1));
-                if ((window as any).lenis) {
-                  (window as any).lenis.scrollTo(0, { duration: 1 });
+                const lenis = (window as unknown as LenisScrollWindow).lenis;
+                if (lenis) {
+                  lenis.scrollTo(0, { duration: 1 });
                 } else {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }

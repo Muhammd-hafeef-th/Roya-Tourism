@@ -20,43 +20,49 @@ function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.hash) {
-      const targetId = location.hash.substring(1);
-      let lastY = -1;
-      
-      const tryScroll = (attempts = 0) => {
-        const el = document.getElementById(targetId);
-        if (el) {
-          const yOffset = -80; // height of navbar
-          
-          // Calculate absolute offset top from document top (independent of window.scrollY)
-          let top = 0;
-          let curr: HTMLElement | null = el;
-          while (curr) {
-            top += curr.offsetTop;
-            curr = curr.offsetParent as HTMLElement | null;
-          }
-          const targetY = top + yOffset;
-          
-          if (Math.abs(targetY - lastY) > 5) {
-            lastY = targetY;
-            if ((window as any).lenis) {
-              (window as any).lenis.scrollTo(targetY, { duration: 1.2 });
-            } else {
-              window.scrollTo({ top: targetY, behavior: 'smooth' });
-            }
-          }
-          
-          // Poll multiple times to adapt to any late layout changes
-          if (attempts < 5) {
-            setTimeout(() => tryScroll(attempts + 1), 250);
-          }
-        } else if (attempts < 20) {
-          setTimeout(() => tryScroll(attempts + 1), 100);
+    if (!location.hash) return;
+
+    const targetId = location.hash.substring(1);
+    let lastY = -1;
+    let active = true;
+    const timeouts: number[] = [];
+
+    const tryScroll = (attempts = 0) => {
+      if (!active) return;
+      const el = document.getElementById(targetId);
+      if (el) {
+        const yOffset = -80; // height of navbar
+
+        let top = 0;
+        let curr: HTMLElement | null = el;
+        while (curr) {
+          top += curr.offsetTop;
+          curr = curr.offsetParent as HTMLElement | null;
         }
-      };
-      tryScroll();
-    }
+        const targetY = top + yOffset;
+
+        if (Math.abs(targetY - lastY) > 5) {
+          lastY = targetY;
+          if ((window as any).lenis) {
+            (window as any).lenis.scrollTo(targetY, { duration: 1.2 });
+          } else {
+            window.scrollTo({ top: targetY, behavior: 'smooth' });
+          }
+        }
+
+        if (attempts < 5) {
+          timeouts.push(window.setTimeout(() => tryScroll(attempts + 1), 250));
+        }
+      } else if (attempts < 20) {
+        timeouts.push(window.setTimeout(() => tryScroll(attempts + 1), 100));
+      }
+    };
+
+    tryScroll();
+    return () => {
+      active = false;
+      timeouts.forEach(clearTimeout);
+    };
   }, [location]);
 
   return (
@@ -76,18 +82,34 @@ function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
 function MainApp() {
   const [introComplete, setIntroComplete] = useState(false);
   const [exitStarted, setExitStarted] = useState(false);
+  const [hasSeenIntro, setHasSeenIntro] = useState(() => {
+    try {
+      return sessionStorage.getItem('royaIntroSeen') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
   const location = useLocation();
   const isHome = location.pathname === '/';
 
-  const isSiteVisible = !isHome || exitStarted || introComplete;
-  const startHeroAnimation = !isHome || exitStarted || introComplete;
+  const isSiteVisible = !isHome || exitStarted || introComplete || hasSeenIntro;
+  const startHeroAnimation = !isHome || exitStarted || introComplete || hasSeenIntro;
 
   return (
     <div className="font-sans" style={{ background: '#faf9f7' }}>
       {/* Cinematic intro — renders above everything, removes itself after completion */}
-      {isHome && !introComplete && (
+      {isHome && !introComplete && !hasSeenIntro && (
         <CinematicIntro 
-          onComplete={() => setIntroComplete(true)} 
+          onComplete={() => {
+            setIntroComplete(true);
+            setHasSeenIntro(true);
+            try {
+              sessionStorage.setItem('royaIntroSeen', 'true');
+            } catch {
+              // sessionStorage may be unavailable in private mode
+            }
+          }} 
           onExitStart={() => setExitStarted(true)} 
         />
       )}
@@ -96,7 +118,8 @@ function MainApp() {
       <div
         style={{
           opacity: isSiteVisible ? 1 : 0,
-          pointerEvents: (isHome && !introComplete) ? 'none' : 'auto',
+          // Allow interactions if the user has already seen the intro in this tab.
+          pointerEvents: (isHome && !introComplete && !hasSeenIntro) ? 'none' : 'auto',
           transition: 'opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1)',
         }}
       >

@@ -1,27 +1,39 @@
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useRef, useCallback, useMemo } from 'react';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Clock, Hotel, Plane, ArrowRight, Compass } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { internationalPackages } from '../data/packagesData';
 
-function BentoCard({ pkg, index, isLarge }: { pkg: typeof internationalPackages[0]; index: number; isLarge?: boolean }) {
-  const ref = useRef(null);
+const BentoCard = React.memo(function BentoCard({ pkg, index, isLarge }: { pkg: typeof internationalPackages[0]; index: number; isLarge?: boolean }) {
+  const ref = useRef<HTMLElement | null>(null);
+  const prefersReduced = useReducedMotion();
   const inView = useInView(ref, { once: true, margin: '-50px' });
+
+  const handleClick = useCallback(() => {
+    const url = `https://wa.me/1234567890?text=${encodeURIComponent("I'm interested in the " + pkg.destination + ' package')}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, [pkg.destination]);
 
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, scale: 0.96, y: 30 }}
-      animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.21, 0.47, 0.32, 0.98] }}
+      ref={ref as any}
+      initial={prefersReduced ? undefined : { opacity: 0, scale: 0.96, y: 30 }}
+      animate={inView && !prefersReduced ? { opacity: 1, scale: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay: index * 0.12, ease: [0.21, 0.47, 0.32, 0.98] }}
       className="group relative w-full h-full rounded-[2rem] overflow-hidden shadow-2xl cursor-pointer"
-      onClick={() => window.open(`https://wa.me/1234567890?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.destination)}%20package`, '_blank')}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}
     >
       {/* Background Image */}
       <img
         src={pkg.image}
         alt={pkg.destination}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+        loading="lazy"
+        decoding="async"
+        fetchpriority="low"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] ease-out will-change-transform group-hover:scale-110"
       />
       
       {/* Gradients */}
@@ -87,14 +99,15 @@ function BentoCard({ pkg, index, isLarge }: { pkg: typeof internationalPackages[
       </div>
     </motion.div>
   );
-}
+});
 
 export default function Packages() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
+  const prefersReduced = useReducedMotion();
 
-  // Only show top 3 packages
-  const displayPackages = internationalPackages.slice(0, 3);
+  // Only show top 3 packages (memoized)
+  const displayPackages = useMemo(() => internationalPackages.slice(0, 3), []);
 
   return (
     <section id="packages" className="pt-12 pb-24 lg:pt-16 lg:pb-32 relative overflow-hidden bg-stone-900">

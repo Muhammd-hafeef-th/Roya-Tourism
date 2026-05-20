@@ -377,11 +377,8 @@ export default function Navbar({ startAnimation = true }: { startAnimation?: boo
               {/* Nav links */}
               <nav className="flex-1 px-4 sm:px-6 py-4 sm:py-6 flex flex-col gap-1 sm:gap-1.5">
                 {navLinks.map((link, i) => (
-                  <motion.button
+                  <button
                     key={link.href}
-                    initial={{ opacity: 0, x: 32 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.06 * i, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                     onClick={() => handleNav(link.href)}
                     className={`
                       w-full text-left
@@ -403,7 +400,7 @@ export default function Navbar({ startAnimation = true }: { startAnimation?: boo
                     {(active === link.href && isHome) && (
                       <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#c9a84c] flex-shrink-0" />
                     )}
-                  </motion.button>
+                  </button>
                 ))}
               </nav>
 
