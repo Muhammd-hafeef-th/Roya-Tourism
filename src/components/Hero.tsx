@@ -34,10 +34,10 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
   const isMobile = vw > 0 && vw < BP.sm;
   const isTablet = vw >= BP.sm && vw < BP.lg;
   const isTV = vw >= BP.tv;
-  const sectionH = isMobile ? '400vh' : isTablet ? '450vh' : isTV ? '600vh' : '500vh';
+  const sectionH = isMobile ? '300vh' : isTablet ? '350vh' : isTV ? '450vh' : '380vh';
 
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
-  const p = useSpring(scrollYProgress, { stiffness: isMobile ? 80 : 60, damping: isMobile ? 30 : 25, restDelta: 0.001 });
+  const p = useSpring(scrollYProgress, { stiffness: isMobile ? 140 : 120, damping: isMobile ? 20 : 18, restDelta: 0.0005, mass: 0.8 });
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -48,14 +48,18 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
 
     let active = true;
     let loadedCount = 0;
+    let lastRenderedFrame = -1;
     const images = imagesRef.current;
     images.length = 0;
 
     const renderFrame = (frame: number) => {
       if (!canvas || !ctx) return;
+      if (frame === lastRenderedFrame) return;
+      
       const img = images[frame] || images[0];
       if (!img || !img.complete) return;
 
+      lastRenderedFrame = frame;
       const canvasRatio = canvas.width / canvas.height;
       const imgRatio = img.width / img.height;
       let drawWidth = canvas.width;
@@ -112,11 +116,11 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
 
     const preloadRemaining = (start: number) => {
       if (!active || start > FRAME_COUNT) return;
-      const nextEnd = Math.min(start + 11, FRAME_COUNT);
+      const nextEnd = Math.min(start + 16, FRAME_COUNT);
       preloadBatch(start, nextEnd);
       const nextStart = nextEnd + 1;
       if (nextStart <= FRAME_COUNT) {
-        window.setTimeout(() => preloadRemaining(nextStart), 200);
+        window.setTimeout(() => preloadRemaining(nextStart), 80);
       }
     };
 
@@ -129,8 +133,8 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
       scheduleRender(currentFrame);
     };
 
-    preloadBatch(1, Math.min(20, FRAME_COUNT));
-    preloadRemaining(21);
+    preloadBatch(1, Math.min(32, FRAME_COUNT));
+    preloadRemaining(33);
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas, { passive: true });
 
@@ -150,24 +154,24 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
     };
   }, [p, isMobile]);
 
-  const textY = useTransform(p, [0, 0.32], ['0%', '-20%']);
-  const textOp = useTransform(p, [0, 0.24, 0.32], [1, 1, 0]);
-  const textScale = useTransform(p, [0, 0.32], isMobile ? [1, 1] : [1, 1.03]);
+  const textY = useTransform(p, [0, 0.28], ['0%', '-20%']);
+  const textOp = useTransform(p, [0, 0.20, 0.28], [1, 1, 0]);
+  const textScale = useTransform(p, [0, 0.28], isMobile ? [1, 1] : [1, 1.03]);
 
-  const ctaY = useTransform(p, [0, 0.28], ['0%', '-15%']);
-  const ctaOp = useTransform(p, [0, 0.20, 0.28], [1, 1, 0]);
+  const ctaY = useTransform(p, [0, 0.24], ['0%', '-15%']);
+  const ctaOp = useTransform(p, [0, 0.16, 0.24], [1, 1, 0]);
 
-  const textY2 = useTransform(p, [0.28, 0.36, 0.56, 0.64], ['30px', '0px', '0px', '-30px']);
-  const textOp2 = useTransform(p, [0.28, 0.36, 0.56, 0.64], [0, 1, 1, 0]);
-  const textScale2 = useTransform(p, [0.28, 0.64], isMobile ? [1, 1] : [0.98, 1.02]);
+  const textY2 = useTransform(p, [0.24, 0.32, 0.52, 0.60], ['30px', '0px', '0px', '-30px']);
+  const textOp2 = useTransform(p, [0.24, 0.32, 0.52, 0.60], [0, 1, 1, 0]);
+  const textScale2 = useTransform(p, [0.24, 0.60], isMobile ? [1, 1] : [0.98, 1.02]);
 
-  const textY3 = useTransform(p, [0.60, 0.68, 0.88, 0.94], ['30px', '0px', '0px', '-30px']);
-  const textOp3 = useTransform(p, [0.60, 0.68, 0.88, 0.94], [0, 1, 1, 0]);
-  const textScale3 = useTransform(p, [0.60, 0.94], isMobile ? [1, 1] : [0.98, 1.02]);
+  const textY3 = useTransform(p, [0.56, 0.64, 0.84, 0.90], ['30px', '0px', '0px', '-30px']);
+  const textOp3 = useTransform(p, [0.56, 0.64, 0.84, 0.90], [0, 1, 1, 0]);
+  const textScale3 = useTransform(p, [0.56, 0.90], isMobile ? [1, 1] : [0.98, 1.02]);
 
-  const vignetteOp = useTransform(p, [0, 0.5], [0.3, 0.85]);
-  const scrollFade = useTransform(p, [0, 0.05], [1, 0]);
-  const transOp = useTransform(p, [0.8, 1], [0, 1]);
+  const vignetteOp = useTransform(p, [0, 0.4], [0.3, 0.85]);
+  const scrollFade = useTransform(p, [0, 0.04], [1, 0]);
+  const transOp = useTransform(p, [0.75, 1], [0, 1]);
 
   const headlineSize = isMobile ? 'clamp(2rem, 9vw, 2.8rem)' : isTablet ? 'clamp(3.8rem, 7.5vw, 5rem)' : isTV ? 'clamp(8.5rem, 8.5vw, 12rem)' : 'clamp(4.8rem, 7vw, 7.5rem)';
   const subSize = isMobile ? 'clamp(0.8rem, 3.5vw, 0.95rem)' : isTablet ? 'clamp(0.95rem, 2vw, 1.1rem)' : isTV ? 'clamp(1.5rem, 1.4vw, 1.85rem)' : 'clamp(1rem, 1.3vw, 1.25rem)';
