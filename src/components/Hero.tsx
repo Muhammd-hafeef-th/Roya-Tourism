@@ -34,10 +34,10 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
   const isMobile = vw > 0 && vw < BP.sm;
   const isTablet = vw >= BP.sm && vw < BP.lg;
   const isTV = vw >= BP.tv;
-  const sectionH = isMobile ? '140vh' : isTablet ? '180vh' : '220vh';
+  const sectionH = isMobile ? '400vh' : isTablet ? '450vh' : isTV ? '600vh' : '500vh';
 
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
-  const p = useSpring(scrollYProgress, { stiffness: isMobile ? 50 : 35, damping: isMobile ? 25 : 18, restDelta: 0.001 });
+  const p = useSpring(scrollYProgress, { stiffness: isMobile ? 80 : 60, damping: isMobile ? 30 : 25, restDelta: 0.001 });
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -212,7 +212,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               initial={{ opacity: 0, y: isMobile ? 10 : 15 }}
               animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: isMobile ? 10 : 15 }}
               transition={{ duration: isMobile ? 1 : 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-8"
+              className="flex items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8"
             >
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-r from-transparent to-white/40" />
               <span className="font-sans font-medium uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 text-[0.6rem] sm:text-xs">
@@ -221,7 +221,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-l from-transparent to-white/40" />
             </motion.div>
 
-            <div className="mb-4 sm:mb-8 overflow-hidden">
+            <div className="mb-6 sm:mb-8 overflow-hidden">
               <div
                 className="font-serif font-light text-white leading-[1.05] tracking-tight"
                 style={{ fontSize: headlineSize }}
@@ -268,7 +268,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               initial={{ opacity: 0, y: 20 }}
               animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: isMobile ? 1.2 : 1.5, delay: isMobile ? 0.7 : 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="font-sans font-light text-stone-200/90 sm:text-white/60 mx-auto max-w-[20rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide"
+              className="font-sans font-light text-stone-200/90 sm:text-white/60 mx-auto max-w-[22rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide px-2 sm:px-0"
               style={{ fontSize: subSize }}
             >
               Luxury experiences crafted through unforgettable destinations,{' '}
@@ -281,11 +281,11 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               initial={{ opacity: 0, y: 20 }}
               animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: isMobile ? 1.2 : 1.5, delay: isMobile ? 0.9 : 1.1, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-6 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-5 items-center w-full justify-center px-4 sm:px-0"
+              className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-4 sm:gap-5 items-center w-full justify-center px-4 sm:px-0"
             >
               <button
                 onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group relative px-5 sm:px-10 py-3 sm:py-4 rounded-full font-sans overflow-hidden transition-all duration-700 hover:scale-[1.02] active:scale-95 w-full max-w-[260px] sm:w-auto min-w-[160px] sm:min-w-[180px] border border-transparent hover:border-amber-200/30"
+                className="group relative px-5 sm:px-10 py-3.5 sm:py-4 rounded-full font-sans overflow-hidden transition-all duration-700 hover:scale-[1.02] active:scale-95 w-full max-w-[280px] sm:w-auto min-w-[160px] sm:min-w-[180px] border border-transparent hover:border-amber-200/30"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-stone-100 to-white" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-[#E2C275] to-[#F5DF96] transition-opacity duration-700" />
@@ -297,7 +297,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
 
               <button
                 onClick={() => document.querySelector('#packages')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group relative px-5 sm:px-10 py-3 sm:py-4 rounded-full font-sans text-white w-full max-w-[260px] sm:w-auto min-w-[160px] sm:min-w-[180px] transition-all duration-700 hover:scale-[1.02] active:scale-95 border border-white/20 hover:border-[#E2C275]/50"
+                className="group relative px-5 sm:px-10 py-3.5 sm:py-4 rounded-full font-sans text-white w-full max-w-[280px] sm:w-auto min-w-[160px] sm:min-w-[180px] transition-all duration-700 hover:scale-[1.02] active:scale-95 border border-white/20 hover:border-[#E2C275]/50"
               >
                 <div className="absolute inset-0 rounded-full bg-black/10 backdrop-blur-md group-hover:bg-black/20 transition-all duration-700" />
                 <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_30px_rgba(226,194,117,0.15)] transition-opacity duration-700" />
@@ -314,7 +314,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
           style={{ y: textY2, opacity: textOp2, scale: textScale2 }}
         >
           <div className="text-center w-full max-w-6xl mx-auto">
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-8">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-r from-transparent to-white/40" />
               <span className="font-sans font-medium uppercase tracking-[0.3em] sm:tracking-[0.4em] text-[#E2C275] text-[0.6rem] sm:text-xs">
                 Sacred & Serene
@@ -322,7 +322,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-l from-transparent to-white/40" />
             </div>
 
-            <div className="mb-4 sm:mb-8">
+            <div className="mb-6 sm:mb-8">
               <h2
                 className="font-serif font-light text-white leading-[1.05] tracking-tight"
                 style={{ fontSize: headlineSize }}
@@ -342,7 +342,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
             </div>
 
             <p
-              className="font-sans font-light text-white/60 mx-auto max-w-[20rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide"
+              className="font-sans font-light text-white/60 mx-auto max-w-[22rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide px-2 sm:px-0"
               style={{ fontSize: subSize }}
             >
               Embark on tailored Umrah & Hajj packages designed with ultimate comfort, premium guidance, and luxury accommodations.
@@ -355,7 +355,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
           style={{ y: textY3, opacity: textOp3, scale: textScale3 }}
         >
           <div className="text-center w-full max-w-6xl mx-auto">
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-8">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-r from-transparent to-white/40" />
               <span className="font-sans font-medium uppercase tracking-[0.3em] sm:tracking-[0.4em] text-[#E2C275] text-[0.6rem] sm:text-xs">
                 Unrivaled Service
@@ -363,7 +363,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-l from-transparent to-white/40" />
             </div>
 
-            <div className="mb-4 sm:mb-8">
+            <div className="mb-6 sm:mb-8">
               <h2
                 className="font-serif font-light text-white leading-[1.05] tracking-tight"
                 style={{ fontSize: headlineSize }}
@@ -383,7 +383,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
             </div>
 
             <p
-              className="font-sans font-light text-white/60 mx-auto max-w-[20rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide"
+              className="font-sans font-light text-white/60 mx-auto max-w-[22rem] sm:max-w-xl lg:max-w-2xl leading-relaxed tracking-wide px-2 sm:px-0"
               style={{ fontSize: subSize }}
             >
               Immersive private tours, luxury stays, and seamless logistics across the world's most breathtaking horizons.
