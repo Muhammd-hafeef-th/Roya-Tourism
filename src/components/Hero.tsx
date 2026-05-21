@@ -212,16 +212,16 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               initial={{ opacity: 0, y: isMobile ? 10 : 15 }}
               animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: isMobile ? 10 : 15 }}
               transition={{ duration: isMobile ? 1 : 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8"
+              className="flex items-center justify-center gap-3 sm:gap-4 mb-10 sm:mb-12"
             >
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-r from-transparent to-white/40" />
               <span className="font-sans font-medium uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 text-[0.6rem] sm:text-xs">
-                Roya Tourism · Luxury Travel
+                Roya Global Tourism · Luxury Travel
               </span>
               <span className="h-[1px] w-6 sm:w-16 bg-gradient-to-l from-transparent to-white/40" />
             </motion.div>
 
-            <div className="mb-6 sm:mb-8 overflow-hidden">
+            <div className="mb-10 sm:mb-12 overflow-hidden">
               <div
                 className="font-serif font-light text-white leading-[1.05] tracking-tight"
                 style={{ fontSize: headlineSize }}
@@ -281,7 +281,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
               initial={{ opacity: 0, y: 20 }}
               animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: isMobile ? 1.2 : 1.5, delay: isMobile ? 0.9 : 1.1, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-4 sm:gap-5 items-center w-full justify-center px-4 sm:px-0"
+              className="mt-12 sm:mt-14 flex flex-col sm:flex-row gap-5 sm:gap-6 items-center w-full justify-center px-4 sm:px-0"
             >
               <button
                 onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
@@ -426,7 +426,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
             >
               <MapPin size={14} className="text-[#E2C275]" />
               <span className="font-sans font-light tracking-[0.2em] text-white/70 text-xs">
-                Umrah · Dubai · Maldives
+                Kashmir
               </span>
             </motion.div>
           </motion.div>

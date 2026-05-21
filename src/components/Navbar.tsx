@@ -125,7 +125,7 @@ export default function Navbar({ startAnimation = true }: { startAnimation?: boo
           <button
             onClick={() => handleNav('#hero')}
             className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 relative z-10 text-left"
-            aria-label="Roya Tourism – back to top"
+            aria-label="Roya Global Tourism – back to top"
           >
             {/* Logo mark */}
             <div className="
@@ -136,7 +136,7 @@ export default function Navbar({ startAnimation = true }: { startAnimation?: boo
             ">
               <img
                 src="/logo1.png"
-                alt="Roya Tourism logo"
+                alt="Roya Global Tourism logo"
                 className={`w-full h-full object-contain ${!isSolid ? 'drop-shadow-[0_2px_8px_rgba(201,168,76,0.4)]' : ''}`}
               />
             </div>
@@ -152,13 +152,13 @@ export default function Navbar({ startAnimation = true }: { startAnimation?: boo
                 Roya
               </span>
               <span className={`
-                font-sans font-medium tracking-[0.35em] uppercase
-                text-[0.45rem] xs:text-[0.48rem] sm:text-[0.55rem] md:text-[0.55rem] lg:text-[0.5rem] xl:text-[0.55rem] 2xl:text-[0.65rem] 3xl:text-[0.75rem] 4xl:text-[0.9rem]
+                font-sans font-medium tracking-[0.22em] uppercase
+                text-[0.4rem] xs:text-[0.43rem] sm:text-[0.48rem] md:text-[0.48rem] lg:text-[0.44rem] xl:text-[0.48rem] 2xl:text-[0.56rem] 3xl:text-[0.65rem] 4xl:text-[0.78rem]
                 mt-0.5
                 transition-all duration-500
                 ${isSolid ? 'text-[#c9a84c]' : 'text-[#c9a84c] drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]'}
               `}>
-                Tourism
+                Global Tourism
               </span>
             </div>
           </button>
@@ -358,8 +358,8 @@ export default function Navbar({ startAnimation = true }: { startAnimation?: boo
                     <span className="font-serif font-semibold tracking-[0.1em] uppercase text-xl sm:text-2xl text-stone-900">
                       Roya
                     </span>
-                    <span className="font-sans font-medium tracking-[0.3em] uppercase text-[0.48rem] sm:text-[0.55rem] text-[#c9a84c] mt-0.5">
-                      Tourism
+                    <span className="font-sans font-medium tracking-[0.18em] uppercase text-[0.42rem] sm:text-[0.48rem] text-[#c9a84c] mt-0.5">
+                      Global Tourism
                     </span>
                   </div>
                 </button>

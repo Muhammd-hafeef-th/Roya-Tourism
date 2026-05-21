@@ -132,7 +132,7 @@ export default function About() {
 
               <div className="space-y-4 sm:space-y-6 mb-12 sm:mb-16">
                 <p className="font-sans text-stone-600 leading-relaxed text-base sm:text-lg xl:text-xl">
-                  Roya Tourism is your trusted travel partner for unforgettable journeys across the world. We specialize in international and domestic tour packages, offering comfortable, well-planned, and memorable travel experiences for every traveller.
+                  Roya Global Tourism is your trusted travel partner for unforgettable journeys across the world. We specialize in international and domestic tour packages, offering comfortable, well-planned, and memorable travel experiences for every traveller.
                 </p>
 
                 <p className="font-sans text-stone-600 leading-relaxed text-base sm:text-lg xl:text-xl">

@@ -63,10 +63,10 @@ export default function Footer() {
           {/* Brand Column (Spans 4) */}
           <div className="lg:col-span-4 lg:pr-12">
             <button type="button" onClick={() => handleNav('#hero')} className="flex items-center gap-4 group mb-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/60">
-              <img src="/logo1.png" alt="Roya Tourism" className="w-14 h-14 object-contain group-hover:-rotate-12 transition-transform duration-700" />
+              <img src="/logo1.png" alt="Roya Global Tourism" className="w-14 h-14 object-contain group-hover:-rotate-12 transition-transform duration-700" />
               <div className="flex flex-col text-left">
                 <span className="font-serif text-3xl sm:text-4xl font-medium text-white tracking-wider leading-none">Roya</span>
-                <span className="text-[10px] font-sans tracking-[0.4em] uppercase text-[#c9a84c] mt-2">Tourism</span>
+                <span className="text-[9px] font-sans tracking-[0.25em] uppercase text-[#c9a84c] mt-2">Global Tourism</span>
               </div>
             </button>
             <p className="font-sans text-sm sm:text-base text-white/50 leading-relaxed mb-8 max-w-sm">
@@ -178,7 +178,7 @@ export default function Footer() {
         {/* Bottom Copyright Row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/10">
           <p className="text-xs text-white/40 tracking-wider">
-            © {new Date().getFullYear()} Roya Tourism. All rights reserved.
+            © {new Date().getFullYear()} Roya Global Tourism. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <a href="#" className="text-xs text-white/40 hover:text-[#c9a84c] transition-colors">Terms of Service</a>

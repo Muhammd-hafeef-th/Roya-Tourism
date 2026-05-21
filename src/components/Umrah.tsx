@@ -57,7 +57,7 @@ const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeo
       }`}
     >
       {/* Arch Image Section */}
-      <div className="relative h-72 sm:h-80 lg:h-96 w-full overflow-hidden shrink-0 rounded-t-full rounded-b-3xl">
+      <div className="relative h-56 sm:h-64 lg:h-72 w-full overflow-hidden shrink-0 rounded-t-full rounded-b-3xl">
         <div className="absolute inset-0 bg-[#c9a84c]/10 mix-blend-overlay z-10 transition-opacity duration-700 group-hover:opacity-0" />
         <img
           src={pkg.image}
@@ -78,15 +78,15 @@ const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeo
         )}
       </div>
       {/* Content Section */}
-      <div className="px-4 sm:px-6 pt-8 pb-4 flex-grow flex flex-col">
-        <div className="flex flex-col items-center justify-center mb-8 pb-8 border-b border-stone-100">
+      <div className="px-4 sm:px-6 pt-6 pb-4 flex-grow flex flex-col">
+        <div className="flex flex-col items-center justify-center mb-6 pb-6 border-b border-stone-100">
           <p className="text-[10px] text-stone-400 font-bold uppercase tracking-[0.2em] mb-2">Starting from</p>
           <div className="font-serif text-4xl sm:text-5xl font-semibold text-[#c9a84c]">
             {pkg.price}
           </div>
         </div>
 
-        <div className="space-y-5 mb-10 flex-grow px-2">
+        <div className="space-y-4 mb-6 flex-grow px-2">
           <div className="flex items-start gap-4">
             <div className="mt-0.5 p-2 rounded-full bg-[#c9a84c]/10"><Hotel size={16} className="text-[#c9a84c]" /></div>
             <div>
@@ -103,7 +103,7 @@ const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeo
           </div>
         </div>
 
-        <div className="mb-10 px-2">
+        <div className="mb-6 px-2">
           <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-4 flex items-center justify-center gap-2">
             <Shield size={14} className="text-[#c9a84c]" />
             Package Includes
@@ -193,19 +193,24 @@ export default function Umrah() {
           initial={{ opacity: 0, y: 20 }}
           animate={isBadgesInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mt-20 lg:mt-32 grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          className="mt-20 lg:mt-32 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6 max-w-5xl mx-auto px-2 sm:px-0"
         >
           {[
             { icon: Shield, title: 'Ministry Approved', desc: 'Licensed Umrah Agency' },
             { icon: Star, title: 'Premium Service', desc: 'Uncompromising Quality' },
             { icon: Hotel, title: 'Luxury Stays', desc: '5-Star Haram View Hotels' },
           ].map((badge, i) => (
-            <div key={i} className="flex flex-col items-center text-center p-8 rounded-3xl bg-white border border-[#c9a84c]/15 hover:border-[#c9a84c]/40 transition-all duration-300 shadow-xl shadow-stone-100 hover:shadow-2xl hover:-translate-y-1">
-              <div className="w-16 h-16 rounded-full bg-[#c9a84c]/10 flex items-center justify-center mb-6">
-                <badge.icon size={28} className="text-[#c9a84c]" />
+            <div 
+              key={i} 
+              className={`flex flex-col items-center justify-center text-center p-4 sm:p-8 rounded-[1.5rem] sm:rounded-3xl bg-white border border-[#c9a84c]/15 hover:border-[#c9a84c]/40 transition-all duration-300 shadow-xl shadow-stone-100 hover:shadow-2xl hover:-translate-y-1 ${
+                i === 2 ? 'col-span-2 sm:col-span-1 max-w-[240px] sm:max-w-none mx-auto w-full' : ''
+              }`}
+            >
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#c9a84c]/10 flex items-center justify-center mb-3 sm:mb-6">
+                <badge.icon className="w-5 h-5 sm:w-7 sm:h-7 text-[#c9a84c]" />
               </div>
-              <h4 className="font-serif text-xl font-medium text-stone-900 mb-2">{badge.title}</h4>
-              <p className="text-sm text-stone-500">{badge.desc}</p>
+              <h4 className="font-serif text-[0.95rem] sm:text-xl font-medium text-stone-900 mb-1.5 sm:mb-2 leading-tight">{badge.title}</h4>
+              <p className="text-[10px] sm:text-sm text-stone-500 px-1">{badge.desc}</p>
             </div>
           ))}
         </motion.div>

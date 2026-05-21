@@ -223,7 +223,7 @@ export default function InternationalTrips() {
                   The Heart of <span className="text-[#c9a84c] italic">Oman</span>
                 </h3>
                 <p className="text-white/70 font-sans text-base sm:text-lg leading-relaxed max-w-2xl">
-                  Roya Tourism is proudly specialized in Oman trips. We offer exclusive access, deeply knowledgeable local guides, and uniquely curated experiences across the Sultanate — from the lush khareef in Salalah to the sweeping dunes of Wahiba Sands.
+                  Roya Global Tourism is proudly specialized in Oman trips. We offer exclusive access, deeply knowledgeable local guides, and uniquely curated experiences across the Sultanate — from the lush khareef in Salalah to the sweeping dunes of Wahiba Sands.
                 </p>
               </div>
             </motion.div>

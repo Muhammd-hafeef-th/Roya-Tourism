@@ -1,6 +1,6 @@
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, { useRef, useCallback, useMemo, useState, useEffect } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import { Clock, Hotel, Plane, ArrowRight, Compass } from 'lucide-react';
+import { Clock, Hotel, Plane, ArrowRight, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { internationalPackages } from '../data/packagesData';
 
@@ -106,8 +106,20 @@ export default function Packages() {
   const inView = useInView(ref, { once: true, margin: '-100px' });
   const prefersReduced = useReducedMotion();
 
-  // Only show top 3 packages (memoized)
-  const displayPackages = useMemo(() => internationalPackages.slice(0, 3), []);
+  // Use 5 packages for the mobile slider (desktop grid will only pick the first 3)
+  const displayPackages = useMemo(() => internationalPackages.slice(0, 5), []);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((current) => (current + 1) % displayPackages.length);
+    }, 5000); // 5 seconds auto sliding
+    return () => clearInterval(timer);
+  }, [displayPackages.length]);
+
+  const handleNext = () => setActiveIndex((current) => (current + 1) % displayPackages.length);
+  const handlePrev = () => setActiveIndex((current) => (current - 1 + displayPackages.length) % displayPackages.length);
 
   return (
     <section id="packages" className="pt-12 pb-24 lg:pt-16 lg:pb-32 relative overflow-hidden bg-stone-900">
@@ -141,8 +153,59 @@ export default function Packages() {
           </p>
         </motion.div>
 
-        {/* Bento Grid Layout - Takes up much less vertical space on laptops! */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-20 lg:mb-24 max-w-6xl mx-auto">
+        {/* Mobile Carousel Layout (Hidden on md and up) */}
+        <div className="block md:hidden mb-16 relative w-full">
+          <div className="overflow-hidden rounded-[2rem] shadow-2xl relative mb-6">
+            <div 
+              className="flex transition-transform duration-1000 ease-[0.21,0.47,0.32,0.98]"
+              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            >
+              {displayPackages.map((pkg, idx) => (
+                <div key={pkg.destination} className="w-full flex-shrink-0 h-[450px]">
+                  <BentoCard pkg={pkg} index={idx} />
+                </div>
+              ))}
+            </div>
+
+            {/* Navigation Arrows */}
+            <button 
+              onClick={handlePrev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/20 flex items-center justify-center text-white z-30 hover:bg-[#c9a84c] hover:border-[#c9a84c] transition-all"
+              aria-label="Previous Package"
+            >
+              <ChevronLeft size={20} className="mr-0.5" />
+            </button>
+            <button 
+              onClick={handleNext}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/20 flex items-center justify-center text-white z-30 hover:bg-[#c9a84c] hover:border-[#c9a84c] transition-all"
+              aria-label="Next Package"
+            >
+              <ChevronRight size={20} className="ml-0.5" />
+            </button>
+
+          </div>
+
+          {/* Premium Line Indicators Outside the Card */}
+          <div className="flex justify-center items-center gap-2">
+            {displayPackages.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveIndex(idx)}
+                className="group p-2 outline-none flex items-center justify-center"
+                aria-label={`Go to slide ${idx + 1}`}
+              >
+                <div className={`rounded-full transition-all duration-500 ease-out ${
+                  idx === activeIndex 
+                    ? 'w-10 h-[4px] bg-gradient-to-r from-[#c9a84c] to-[#e8c97a] shadow-[0_0_12px_rgba(201,168,76,0.5)]' 
+                    : 'w-3 h-[4px] bg-white/20 group-hover:bg-white/40'
+                }`} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop Bento Grid Layout (Hidden on mobile) */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-20 lg:mb-24 max-w-6xl mx-auto">
           {/* Main Feature - spans 2 columns on tablet and desktop, 2 rows on desktop */}
           <div className="md:col-span-2 lg:row-span-2 h-[450px] md:h-[500px] lg:h-[600px]">
             <BentoCard pkg={displayPackages[0]} index={0} isLarge />

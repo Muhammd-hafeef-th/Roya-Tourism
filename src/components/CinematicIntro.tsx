@@ -144,7 +144,7 @@ export default function CinematicIntro({ onComplete, onExitStart }: CinematicInt
                 <div className="absolute inset-0 flex items-center justify-center">
                   <img
                     src="/logo.jpeg"
-                    alt="Roya Tourism Logo"
+                    alt="Roya Global Tourism Logo"
                     className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 rounded-full object-cover"
                     style={{
                       boxShadow: `0 4px 20px rgba(201,168,76,0.25), 0 0 0 1px rgba(201,168,76,0.25)`,
@@ -157,8 +157,8 @@ export default function CinematicIntro({ onComplete, onExitStart }: CinematicInt
               <motion.h1
                 className="font-serif font-light leading-none mb-2 sm:mb-3"
                 style={{
-                  fontSize: 'clamp(3rem, 10vw, 7.5rem)',
-                  letterSpacing: '0.04em',
+                  fontSize: 'clamp(2.5rem, 8.5vw, 6.5rem)',
+                  letterSpacing: '0.03em',
                   color: '#1c1917',
                 }}
                 initial={{ opacity: 0, x: 40, filter: 'blur(14px)' }}
@@ -177,7 +177,7 @@ export default function CinematicIntro({ onComplete, onExitStart }: CinematicInt
                     animation: 'shimmer 5s linear infinite',
                   }}
                 >
-                  Tourism
+                  Global Tourism
                 </span>
               </motion.h1>
 

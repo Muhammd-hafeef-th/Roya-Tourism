@@ -67,7 +67,7 @@ export default function ScrollJourney() {
               Watch your trip move from idea to unforgettable.
             </h2>
             <p className="mt-5 max-w-xl font-sans text-base leading-relaxed text-stone-600 sm:text-lg">
-              A premium travel experience should feel guided from the first message. Scroll through the journey and see how Roya Tourism handles every step.
+              A premium travel experience should feel guided from the first message. Scroll through the journey and see how Roya Global Tourism handles every step.
             </p>
             <div className="mt-8 grid grid-cols-3 gap-3 sm:max-w-md">
               {['Visa help', 'Hotel picks', '24/7 care'].map(item => (
