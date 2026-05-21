@@ -8,6 +8,7 @@ import ScrollJourney from './components/ScrollJourney';
 import About from './components/About';
 import Umrah from './components/Umrah';
 import Packages from './components/Packages';
+import DomesticPackages from './components/DomesticPackages';
 import Gallery from './components/Gallery';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
@@ -72,6 +73,7 @@ function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
       <About />
       <Umrah />
       <Packages />
+      <DomesticPackages />
       <Gallery />
       <Testimonials />
       <Contact />
