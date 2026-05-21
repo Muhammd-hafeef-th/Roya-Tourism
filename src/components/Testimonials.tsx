@@ -1,190 +1,444 @@
-import { useRef, useState } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Fatima Al-Hassan',
-    location: 'London, UK',
-    package: 'Gold Umrah Package',
+    name: 'Ameen Nizar',
+    location: 'Kochi, Kerala',
+    package: 'Kerala Backwater Retreat',
     rating: 5,
-    text: "Roya Travels made our Umrah journey absolutely seamless and spiritually enriching. The 5-star hotel was steps from the Haram, the guides were knowledgeable, and every detail was handled with such care. We felt truly blessed.",
-    image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200',
+    text: 'The private houseboat cruise through Alleppey was peaceful,and beautifully organized from beginning to end.',
+    image:
+      'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1200&auto=format&fit=crop',
+  },
+
+  {
+    name: 'Fathima Rashid',
+    location: 'Calicut, Kerala',
+    package: 'Munnar Luxury Hills',
+    rating: 5,
+    text: 'Munnar felt magical. The foggy tea plantations and luxury resort experience exceeded every expectation we had.',
+    image:
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop',
+  },
+
+  {
+    name: 'Shamil Kareem',
+    location: 'Kannur, Kerala',
+    package: 'Kovalam Beach Escape',
+    rating: 5,
+    text: 'The beachside villa, Ayurvedic spa, and sunset dinners made our Kerala vacation unforgettable and deeply relaxing.',
+    image:
+      'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?q=80&w=1200&auto=format&fit=crop',
+  },
+
+  {
+    name: 'Omar Al Balushi',
+    location: 'Muscat, Oman',
+    package: 'Dubai Premium Tour',
+    rating: 5,
+    text: 'Roya planned every Dubai experience perfectly — luxury shopping, desert safari, yacht dining, and Burj Khalifa views.',
+    image:
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1200&auto=format&fit=crop',
   },
   {
-    name: 'Ahmed Malik',
-    location: 'Toronto, Canada',
-    package: 'Dubai Package',
+    name: 'Saeed Al Riyami',
+    location: 'Salalah, Oman',
+    package: 'Wayanad Nature Escape',
     rating: 5,
-    text: "From the moment we landed in Dubai to our final farewell, everything was executed with pure luxury. The desert safari, the Burj Khalifa dinner, the gold souk — Roya Travels curated an unforgettable experience for my family.",
-    image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200',
-  },
-  {
-    name: 'Sarah Johnson',
-    location: 'New York, USA',
-    package: 'Maldives Package',
-    rating: 5,
-    text: "Our Maldives honeymoon was absolute perfection. The overwater bungalow, the private snorkeling, the sunset cruise — it felt like a dream. Roya Travels knows what luxury truly means. We're already planning our next trip with them!",
-    image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200',
-  },
-  {
-    name: 'Omar Khalid',
-    location: 'Dubai, UAE',
-    package: 'Europe Grand Tour',
-    rating: 5,
-    text: "Fourteen days across five European capitals — Paris, Rome, Amsterdam, Barcelona, and Zurich. Every hotel was boutique perfection, every guide was passionate, and every moment felt cinematic. Roya Travels is in a class of their own.",
-    image: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=200',
-  },
-  {
-    name: 'Layla Ibrahim',
-    location: 'Manchester, UK',
-    package: 'Royal Umrah',
-    rating: 5,
-    text: "The Royal Umrah package was beyond anything I could have imagined. Having a dedicated concierge, first-class flights, and a room with a direct view of the Kaaba — this was a once-in-a-lifetime spiritual experience. Truly majestic.",
-    image: 'https://images.pexels.com/photos/1587009/pexels-photo-1587009.jpeg?auto=compress&cs=tinysrgb&w=200',
+    text: 'Wayanad was calm, green, and incredibly refreshing. The private resort experience felt premium in every way.',
+    image:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1200&auto=format&fit=crop',
   },
 ];
 
 export default function Testimonials() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
+
+  const inView = useInView(ref, {
+    once: true,
+    margin: '-100px',
+  });
+
   const [current, setCurrent] = useState(0);
 
-  const prev = () => setCurrent(c => (c - 1 + testimonials.length) % testimonials.length);
-  const next = () => setCurrent(c => (c + 1) % testimonials.length);
+  /* PAUSE AUTO SCROLL */
+  const [paused, setPaused] = useState(false);
 
-  const getVisible = () => {
-    const indices = [];
-    for (let i = -1; i <= 1; i++) {
-      indices.push((current + i + testimonials.length) % testimonials.length);
+  /* AUTO CHANGE DESKTOP */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % testimonials.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  /* OUTSIDE CLICK RESUME */
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setPaused(false);
+    };
+
+    if (paused) {
+      document.addEventListener('click', handleClickOutside);
     }
-    return indices;
-  };
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [paused]);
 
   return (
-    <section id="testimonials" className="py-28 relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #f5f0e6 0%, #faf9f7 100%)' }}
+    <section
+      id="testimonials"
+      className="relative overflow-hidden py-24 md:py-28 xl:py-32 2xl:py-40 bg-[#faf7f2]"
     >
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full opacity-15"
-          style={{ background: 'radial-gradient(ellipse, rgba(201,168,76,0.3) 0%, transparent 70%)' }}
-        />
+      {/* BACKGROUND */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-[#c9a84c]/10 blur-[120px]" />
+
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-[#c9a84c]/5 blur-[120px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="relative z-10 max-w-[1700px] 2xl:max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* HEADER */}
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          className="text-center mb-16 lg:mb-20"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-px bg-gold-400" />
-            <span className="section-tag">What Our Travellers Say</span>
-            <div className="w-8 h-px bg-gold-400" />
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-[#e8dcc2] bg-white shadow-sm mb-6">
+
+            <div className="w-2 h-2 rounded-full bg-[#c9a84c]" />
+
+            <span className="text-[11px] uppercase tracking-[0.3em] font-semibold text-stone-600">
+              Guest Experiences
+            </span>
+
+            <div className="w-2 h-2 rounded-full bg-[#c9a84c]" />
           </div>
-          <h2 className="font-serif text-4xl sm:text-5xl font-semibold text-stone-900 mb-4">
-            Stories of <span className="text-gold-600 italic">Unforgettable</span> Journeys
+
+          <h2 className="font-serif text-5xl md:text-6xl xl:text-7xl text-stone-900 leading-tight mb-6">
+            Stories of{' '}
+            <span className="italic text-[#c9a84c]">
+              Luxury Journeys
+            </span>
           </h2>
-          <div className="flex justify-center mt-5">
-            <div className="gold-divider" />
-          </div>
+
+          <p className="max-w-3xl mx-auto text-stone-500 text-lg md:text-xl leading-relaxed">
+            Discover unforgettable travel memories shared by our guests across Kerala,
+            Dubai, Munnar, Wayanad, Kovalam, and beyond.
+          </p>
         </motion.div>
 
-        {/* Carousel */}
-        <div className="relative">
-          {/* Main card */}
-          <div className="flex justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current}
-                initial={{ opacity: 0, y: 20, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.96 }}
-                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="max-w-3xl w-full glass-white rounded-3xl p-6 sm:p-10 shadow-luxury-lg relative"
-              >
-                <Quote size={48} className="text-gold-200 absolute top-8 left-8" />
+        {/* PREMIUM MOBILE + TABLET HORIZONTAL EXPERIENCE */}
+        <div className="lg:hidden relative">
 
-                <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
-                  <div className="flex-shrink-0">
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-luxury">
-                      <img
-                        src={testimonials[current].image}
-                        alt={testimonials[current].name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="mt-3 text-center">
-                      <div className="flex justify-center gap-0.5">
-                        {Array.from({ length: testimonials[current].rating }).map((_, i) => (
-                          <span key={i} className="text-gold-400 text-sm">★</span>
-                        ))}
+          {/* Top Glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-[#c9a84c]/10 rounded-full blur-[100px] pointer-events-none" />
+
+          {/* Horizontal Auto Scroll Wrapper */}
+          <div className="overflow-hidden relative">
+
+            <motion.div
+              animate={
+                paused
+                  ? {}
+                  : {
+                    x: ['0%', '-50%'],
+                  }
+              }
+              transition={{
+                duration: 28,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+              className="flex gap-5 w-max py-4"
+            >
+
+              {[...testimonials, ...testimonials].map((item, idx) => (
+                <div
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPaused(true);
+                  }}
+                  className="flex-shrink-0 w-[88vw] sm:w-[72vw] md:w-[420px] cursor-pointer"
+                >
+
+                  {/* PREMIUM GLASS CARD */}
+                  <div className="group relative overflow-hidden rounded-[36px] bg-white/80 backdrop-blur-2xl border border-white/50 shadow-[0_20px_60px_rgba(0,0,0,0.08)] hover:shadow-[0_30px_80px_rgba(0,0,0,0.14)] transition-all duration-500">
+
+                    {/* Background Glow */}
+                    <div className="absolute top-0 right-0 w-[160px] h-[160px] bg-[#c9a84c]/10 rounded-full blur-[70px]" />
+
+                    {/* TOP SECTION */}
+                    <div className="relative p-5 pb-0">
+
+                      {/* User Row */}
+                      <div className="flex items-center gap-4 mb-5">
+
+                        {/* Image */}
+                        <div className="relative flex-shrink-0">
+
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-20 h-20 rounded-[26px] object-cover border border-white shadow-lg"
+                          />
+
+                          {/* Rating Badge */}
+                          <div className="absolute -bottom-2 -right-2 px-2 py-1 rounded-full bg-[#c9a84c] shadow-lg">
+
+                            <span className="text-white text-[10px] tracking-[0.12em]">
+                              5.0
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* User Info */}
+                        <div className="flex-1 min-w-0">
+
+                          <h3 className="font-serif text-[28px] leading-tight text-stone-900">
+                            {item.name}
+                          </h3>
+
+                          <p className="text-stone-500 text-sm mt-1">
+                            {item.location}
+                          </p>
+
+                          {/* Stars */}
+                          <div className="flex items-center gap-1 mt-3">
+
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span
+                                key={star}
+                                className="text-[#c9a84c] text-sm"
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Floating Quote */}
+                      <div className="absolute top-5 right-5">
+
+                        <div className="w-14 h-14 rounded-2xl bg-[#faf3e2] flex items-center justify-center">
+
+                          <Quote
+                            size={24}
+                            className="text-[#c9a84c]/50"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex-1">
-                    <p className="font-serif text-lg text-stone-700 leading-relaxed italic mb-6">
-                      "{testimonials[current].text}"
-                    </p>
-                    <div className="border-t border-cream-300 pt-4">
-                      <div className="font-serif text-stone-900 font-semibold text-lg">{testimonials[current].name}</div>
-                      <div className="font-sans text-stone-500 text-sm">{testimonials[current].location}</div>
-                      <div className="mt-1">
-                        <span className="btn-gold px-3 py-1 rounded-full text-xs font-sans">{testimonials[current].package}</span>
+                    {/* Review */}
+                    <div className="px-5 pt-5 pb-6">
+
+                      <p className="text-stone-600 text-[15px] leading-relaxed mb-6">
+                        {item.text}
+                      </p>
+
+                      {/* Bottom Section */}
+                      <div className="flex items-center justify-between gap-4">
+
+                        {/* Package */}
+                        <div className="px-4 py-2 rounded-full bg-[#f7f1e4] text-[#b8923f] text-[10px] uppercase tracking-[0.22em] font-bold whitespace-nowrap">
+                          {item.package}
+                        </div>
+
+                        {/* Premium Button */}
+                        <div className="w-12 h-12 rounded-full bg-stone-900 flex items-center justify-center group-hover:bg-[#c9a84c] transition-colors duration-300">
+
+                          <span className="text-white text-lg group-hover:rotate-12 transition-transform duration-300">
+                            ✦
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Luxury Border */}
+                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent opacity-60" />
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Premium Indicator */}
+          <div className="flex justify-center mt-7 gap-2">
+
+            {testimonials.map((_, idx) => (
+              <div
+                key={idx}
+                className={`rounded-full transition-all duration-500 ${idx === current
+                  ? 'w-10 h-2 bg-[#c9a84c]'
+                  : 'w-2 h-2 bg-stone-300'
+                  }`}
+              />
+            ))}
+          </div>
+        </div>
+        {/* DESKTOP + TV */}
+        {/* DESKTOP + TV */}
+        <div className="hidden lg:grid grid-cols-12 gap-7 items-start mt-10">
+
+          {/* MAIN FEATURED CARD */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="col-span-7 2xl:col-span-8 group"
+          >
+            <div className="relative h-[620px] xl:h-[680px] 2xl:h-[760px] rounded-[42px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.18)]">
+
+              {/* IMAGE */}
+              <img
+                src={testimonials[current].image}
+                alt={testimonials[current].name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1800ms] group-hover:scale-105"
+              />
+
+              {/* OVERLAY */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+
+              {/* CONTENT */}
+              <div className="absolute bottom-6 left-6 right-6 xl:bottom-8 xl:left-8 xl:right-8">
+
+                <div className="rounded-[32px] border border-white/10 bg-black/25 backdrop-blur-xl p-6 xl:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+
+                  <div className="flex items-start justify-between gap-10">
+
+                    {/* LEFT */}
+                    <div className="max-w-3xl">
+
+                      <Quote
+                        size={50}
+                        className="text-[#e7c56d]/40 mb-5"
+                      />
+
+                      <p className="text-white/90 text-[18px] xl:text-[22px] leading-relaxed mb-8 font-light">
+                        {testimonials[current].text}
+                      </p>
+
+                      <div>
+
+                        <h3 className="font-serif text-3xl xl:text-4xl text-white mb-2">
+                          {testimonials[current].name}
+                        </h3>
+
+                        <p className="text-white/70 text-lg">
+                          {testimonials[current].location}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="text-right">
+
+                      <div className="text-[#e7c56d] text-lg tracking-[0.25em] mb-5">
+                        ★★★★★
+                      </div>
+
+                      <div className="px-5 py-3 rounded-full bg-[#c9a84c] text-white text-xs uppercase tracking-[0.25em] font-semibold whitespace-nowrap">
+                        {testimonials[current].package}
                       </div>
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+              </div>
+            </div>
+          </motion.div>
 
-          {/* Navigation */}
-          <div className="flex justify-center items-center gap-6 mt-10">
-            <button
-              onClick={prev}
-              className="w-12 h-12 rounded-full border border-gold-300 flex items-center justify-center text-gold-600 hover:bg-gold-500 hover:text-white hover:border-gold-500 transition-all duration-300 shadow-soft"
+          {/* SIDE PANEL */}
+          <div className="col-span-5 2xl:col-span-4 h-[620px] xl:h-[680px] 2xl:h-[760px] overflow-hidden">
+
+            {/* SCROLLABLE LIST */}
+            <div
+              className="h-full overflow-y-auto pr-2 flex flex-col gap-4 scrollbar-hide"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
             >
-              <ChevronLeft size={20} />
-            </button>
 
-            <div className="flex gap-2">
-              {testimonials.map((_, i) => (
+              {testimonials.map((item, idx) => (
                 <button
-                  key={i}
-                  onClick={() => setCurrent(i)}
-                  className={`rounded-full transition-all duration-300 ${
-                    i === current ? 'w-8 h-2.5 bg-gold-500' : 'w-2.5 h-2.5 bg-cream-400 hover:bg-gold-300'
-                  }`}
-                />
+                  key={idx}
+                  onClick={() => setCurrent(idx)}
+                  className={`group relative overflow-hidden rounded-[30px] transition-all duration-500 text-left ${idx === current
+                    ? 'bg-stone-900 text-white shadow-[0_20px_60px_rgba(0,0,0,0.18)]'
+                    : 'bg-white border border-[#eadfc9] hover:bg-[#faf6ed]'
+                    }`}
+                >
+
+                  <div className="flex items-center gap-4 p-4">
+
+                    {/* IMAGE */}
+                    <div className="relative flex-shrink-0">
+
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 rounded-[20px] object-cover"
+                      />
+
+                      {/* STAR BADGE */}
+                      <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-[#c9a84c] flex items-center justify-center text-white text-[10px] shadow-lg">
+                        ★
+                      </div>
+                    </div>
+
+                    {/* CONTENT */}
+                    <div className="flex-1 min-w-0">
+
+                      <h4
+                        className={`font-serif text-[24px] leading-tight mb-1 ${idx === current
+                          ? 'text-white'
+                          : 'text-stone-900'
+                          }`}
+                      >
+                        {item.name}
+                      </h4>
+
+                      <p
+                        className={`text-sm mb-3 ${idx === current
+                          ? 'text-white/70'
+                          : 'text-stone-500'
+                          }`}
+                      >
+                        {item.location}
+                      </p>
+
+                      {/* PACKAGE */}
+                      <div
+                        className={`inline-flex px-3 py-1.5 rounded-full text-[10px] uppercase tracking-[0.18em] font-semibold ${idx === current
+                          ? 'bg-white/10 text-[#e7c56d]'
+                          : 'bg-[#f8f1df] text-[#b8923f]'
+                          }`}
+                      >
+                        {item.package}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ACTIVE BORDER */}
+                  {idx === current && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
+                  )}
+                </button>
               ))}
             </div>
-
-            <button
-              onClick={next}
-              className="w-12 h-12 rounded-full border border-gold-300 flex items-center justify-center text-gold-600 hover:bg-gold-500 hover:text-white hover:border-gold-500 transition-all duration-300 shadow-soft"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
-
-          {/* Side thumbnails */}
-          <div className="hidden lg:flex absolute top-1/2 -translate-y-1/2 left-0 -ml-4">
-            {getVisible().slice(0, 1).map(idx => (
-              <div key={idx} className="opacity-40 scale-90">
-                <img src={testimonials[idx].image} alt="" className="w-14 h-14 rounded-xl object-cover shadow-soft" />
-              </div>
-            ))}
-          </div>
-          <div className="hidden lg:flex absolute top-1/2 -translate-y-1/2 right-0 -mr-4">
-            {getVisible().slice(2).map(idx => (
-              <div key={idx} className="opacity-40 scale-90">
-                <img src={testimonials[idx].image} alt="" className="w-14 h-14 rounded-xl object-cover shadow-soft" />
-              </div>
-            ))}
           </div>
         </div>
       </div>

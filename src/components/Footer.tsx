@@ -106,6 +106,7 @@ export default function Footer() {
                 { label: 'Hajj Packages', href: '#umrah' },
                 { label: 'Global Escapes', href: '#packages' },
                 { label: 'Oman Signature', href: '/international-trips' },
+                { label: 'India Getaways', href: '/domestic-trips' },
               ], []).map((link) => (
                 <li key={link.label}>
                   <button type="button" onClick={() => handleNav(link.href)} className="text-sm text-white/50 hover:text-[#c9a84c] transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a84c]/40">

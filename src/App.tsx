@@ -9,13 +9,13 @@ import About from './components/About';
 import Umrah from './components/Umrah';
 import Packages from './components/Packages';
 import DomesticPackages from './components/DomesticPackages';
-import Gallery from './components/Gallery';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 
 const InternationalTrips = lazy(() => import('./pages/InternationalTrips'));
+const DomesticTrips = lazy(() => import('./pages/DomesticTrips'));
 
 function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
   const location = useLocation();
@@ -74,7 +74,6 @@ function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
       <Umrah />
       <Packages />
       <DomesticPackages />
-      <Gallery />
       <Testimonials />
       <Contact />
     </>
@@ -132,6 +131,11 @@ function MainApp() {
           <Route path="/international-trips" element={
             <Suspense fallback={<div className="h-screen w-full flex items-center justify-center text-gold"><div className="w-8 h-8 rounded-full border-2 border-gold border-t-transparent animate-spin"></div></div>}>
               <InternationalTrips />
+            </Suspense>
+          } />
+          <Route path="/domestic-trips" element={
+            <Suspense fallback={<div className="h-screen w-full flex items-center justify-center text-gold"><div className="w-8 h-8 rounded-full border-2 border-gold border-t-transparent animate-spin"></div></div>}>
+              <DomesticTrips />
             </Suspense>
           } />
         </Routes>

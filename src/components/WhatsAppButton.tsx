@@ -1,77 +1,140 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { X, MessageCircle } from 'lucide-react';
+import { X } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export default function WhatsAppButton() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-5 right-5 sm:bottom-7 sm:right-7 z-[999] flex flex-col items-end">
+
+      {/* CHAT BOX */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 10 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="glass-white rounded-3xl p-5 shadow-luxury-lg max-w-[280px] border border-cream-300"
+            initial={{ opacity: 0, y: 20, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.92 }}
+            transition={{
+              duration: 0.25,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            className="mb-4 w-[320px] overflow-hidden rounded-[28px] bg-white shadow-[0_20px_70px_rgba(0,0,0,0.18)] border border-stone-200"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}
-              >
-                <MessageCircle size={18} className="text-white" />
+
+            {/* HEADER */}
+            <div
+              className="relative px-5 py-4 text-white"
+              style={{
+                background:
+                  'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+              }}
+            >
+
+              {/* PATTERN */}
+              <div className="absolute inset-0 opacity-[0.08]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,white_1px,transparent_1px)] bg-[size:18px_18px]" />
               </div>
-              <div>
-                <div className="font-serif text-sm font-semibold text-stone-900">Roya Travels</div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  <span className="font-sans text-xs text-stone-500">Online now</span>
+
+              <div className="relative flex items-center gap-3">
+
+                {/* AVATAR */}
+                <div className="relative">
+
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop"
+                    alt="Support"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white/30"
+                  />
+
+                  {/* ONLINE DOT */}
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-300 border-2 border-white" />
+                </div>
+
+                {/* INFO */}
+                <div>
+
+                  <h3 className="font-semibold text-[15px] leading-none">
+                    Roya Global Tourism
+                  </h3>
+
+                  <p className="text-white/80 text-xs mt-1">
+                    Typically replies within minutes
+                  </p>
                 </div>
               </div>
             </div>
-            <p className="font-sans text-sm text-stone-600 leading-relaxed mb-4">
-              Hello! How can we help you plan your dream journey? We respond within minutes.
-            </p>
-            <a
-              href="https://wa.me/1234567890?text=Hi%20Roya%20Travels%2C%20I%20would%20like%20to%20inquire%20about%20your%20travel%20packages"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-sans text-sm text-white font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-              style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}
-            >
-              <MessageCircle size={16} />
-              Start Chat
-            </a>
+
+            {/* BODY */}
+            <div className="bg-[#efeae2] px-4 py-5">
+
+              {/* MESSAGE */}
+              <div className="max-w-[90%] rounded-[20px] rounded-tl-md bg-white px-4 py-3 shadow-sm">
+
+                <p className="text-[14px] text-stone-700 leading-relaxed">
+                  Hello 👋
+                  <br />
+                  Welcome to <span className="font-semibold">Roya Global Tourism</span>.
+                  <br />
+                  How can we help you plan your dream journey today?
+                </p>
+
+                <div className="mt-2 text-[11px] text-stone-400 text-right">
+                  10:24 AM
+                </div>
+              </div>
+
+              {/* BUTTON */}
+              <a
+                href="https://wa.me/6235957243?text=Hi%20Roya%20Global%20Tourism%2C%20I%20would%20like%20to%20inquire%20about%20your%20travel%20packages"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 flex items-center justify-center gap-3 rounded-2xl py-3.5 text-white font-medium transition-all duration-300 hover:scale-[1.02]"
+                style={{
+                  background:
+                    'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                }}
+              >
+
+                <FaWhatsapp className="text-[20px]" />
+
+                Chat on WhatsApp
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Main button */}
+      {/* MAIN BUTTON */}
       <motion.button
         onClick={() => setOpen(!open)}
-        className="relative w-14 h-14 rounded-full flex items-center justify-center shadow-luxury text-white"
-        style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
-        animate={open ? {} : { y: [0, -5, 0] }}
-        transition={open ? {} : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        className="relative w-[62px] h-[62px] rounded-full flex items-center justify-center bg-[#25D366] shadow-[0_8px_25px_rgba(37,211,102,0.35)]"
       >
-        {/* Ping ring */}
+
+        {/* RIPPLE */}
         {!open && (
-          <div className="absolute inset-0 rounded-full animate-ping opacity-30"
-            style={{ background: '#25D366' }}
-          />
+          <span className="absolute inset-0 rounded-full border border-[#25D366]/40 animate-ping" />
         )}
+
+        {/* ICON SWITCH */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={open ? 'close' : 'open'}
-            initial={{ rotate: -90, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 90, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            key={open ? 'close' : 'whatsapp'}
+            initial={{ scale: 0.7, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.7, opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="relative z-10"
           >
-            {open ? <X size={22} /> : <MessageCircle size={22} />}
+
+            {open ? (
+              <X size={28} className="text-white" />
+            ) : (
+              <FaWhatsapp className="text-white text-[34px]" />
+            )}
           </motion.div>
         </AnimatePresence>
       </motion.button>
