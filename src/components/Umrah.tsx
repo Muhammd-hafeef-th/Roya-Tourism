@@ -119,7 +119,7 @@ const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeo
         </div>
 
         <a
-          href={`https://wa.me/1234567890?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.name)}%20package`}
+          href={`https://wa.me/6235957243?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.name)}%20package`}
           target="_blank"
           rel="noopener noreferrer"
           className={`mt-auto w-full group flex items-center justify-center gap-2 py-4 rounded-2xl text-xs sm:text-sm font-bold tracking-widest uppercase transition-all duration-300 ${

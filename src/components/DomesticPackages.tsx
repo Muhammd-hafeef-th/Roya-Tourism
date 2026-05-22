@@ -101,7 +101,7 @@ export default function DomesticPackages() {
                     </p>
 
                     <button
-                      onClick={() => window.open(`https://wa.me/1234567890?text=${encodeURIComponent("I'm interested in the " + pkg.destination + ' domestic package')}`, '_blank')}
+                      onClick={() => window.open(`https://wa.me/6235957243?text=${encodeURIComponent("I'm interested in the " + pkg.destination + ' domestic package')}`, '_blank')}
                       className="pointer-events-auto inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-stone-900 text-xs font-bold tracking-widest uppercase hover:bg-[#c9a84c] hover:text-white transition-colors duration-300 shadow-lg"
                     >
                       Inquire Now
@@ -156,7 +156,7 @@ export default function DomesticPackages() {
                       {pkg.description}
                     </p>
                     <button
-                      onClick={() => window.open(`https://wa.me/1234567890?text=${encodeURIComponent("I'm interested in the " + pkg.destination + ' domestic package')}`, '_blank')}
+                      onClick={() => window.open(`https://wa.me/6235957243?text=${encodeURIComponent("I'm interested in the " + pkg.destination + ' domestic package')}`, '_blank')}
                       className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-r from-stone-900 to-stone-800 hover:from-[#c9a84c] hover:to-[#b8943d] text-white text-xs sm:text-sm font-bold tracking-widest uppercase transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 group/btn relative overflow-hidden"
                     >
                       <span className="relative z-10">Explore Package</span>
@@ -253,7 +253,7 @@ export default function DomesticPackages() {
                     <button
                       onClick={() =>
                         window.open(
-                          `https://wa.me/1234567890?text=${encodeURIComponent(
+                          `https://wa.me/6235957243?text=${encodeURIComponent(
                             "I'm interested in the " +
                             pkg.destination +
                             " domestic package"
