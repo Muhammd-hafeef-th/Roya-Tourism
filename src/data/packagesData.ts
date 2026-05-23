@@ -259,7 +259,7 @@ export const domesticPackages = [
     ],
     image:
       "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1600&auto=format&fit=crop",
-    badge: "Tropical Haven",
+    badge: "Heaven",
     isSpecialized: true,
   },
   {
