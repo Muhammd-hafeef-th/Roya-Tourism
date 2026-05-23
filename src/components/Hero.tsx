@@ -430,7 +430,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
             >
               <MapPin size={14} className="text-[#E2C275]" />
               <span className="font-sans font-light tracking-[0.2em] text-white/70 text-xs">
-                Kashmir
+                Maldive Islands
               </span>
             </motion.div>
           </motion.div>

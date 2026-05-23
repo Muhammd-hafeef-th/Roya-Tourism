@@ -7,26 +7,26 @@ const contactInfo = [
   {
     icon: Phone,
     label: "Call",
-    value: "+91 62359 57243",
-    sub: "Mon–Sat, 9am–9pm",
+    value: "+91 81368 12345",
+    sub: "Mon–Sun, 8am–10pm",
   },
   {
     icon: Mail,
     label: "Email",
-    value: "royaglobaltourism@gmail.com",
+    value: "royaglobal01@gmail.com",
     sub: "Response within 24 hours",
   },
   {
     icon: MapPin,
-    label: "Visit",
-    value: "42 Luxury Lane, Travel District",
-    sub: "Dubai, UAE",
+    label: "Destinations",
+    value: "India, UAE, Saudi Arabia, UK & Oman",
+    sub: "Curated journeys across trusted destinations",
   },
   {
     icon: Clock,
     label: "Hours",
-    value: "Mon–Sat: 9am – 9pm",
-    sub: "Sun: 10am – 5pm",
+    value: "Mon–Sat: 8am – 10pm",
+    sub: "Sun: 9am – 9pm",
   },
 ];
 
@@ -179,7 +179,7 @@ export default function Contact() {
             </div>
 
             <a
-              href="https://wa.me/6235957243?text=Hi%20Roya%20Global%20Tourism%2C%20I%20would%20like%20to%20plan%20a%20journey"
+              href="https://wa.me/+917356231571?text=Hi%20Roya%20Global%20Tourism%2C%20I%20would%20like%20to%20plan%20a%20journey"
               target="_blank"
               rel="noreferrer"
               className="inline-flex w-full sm:w-auto items-center justify-center gap-3 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-medium shadow-lg hover:-translate-y-1 transition-all duration-300"
@@ -326,7 +326,7 @@ export default function Contact() {
                 >
                   Or call us:{" "}
                   <span className="font-medium text-stone-800">
-                    +91 62359 57243
+                    +91 81368 12345
                   </span>
                 </a>
               </div>

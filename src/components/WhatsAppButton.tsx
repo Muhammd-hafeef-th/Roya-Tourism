@@ -43,7 +43,7 @@ export default function WhatsAppButton() {
                 <div className="relative">
 
                   <img
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop"
+                    src="/logo.jpeg"
                     alt="Support"
                     className="w-12 h-12 rounded-full object-cover border-2 border-white/30"
                   />
@@ -87,7 +87,7 @@ export default function WhatsAppButton() {
 
               {/* BUTTON */}
               <a
-                href="https://wa.me/+916235957243?text=Hi%20Roya%20Global%20Tourism%2C%20I%20would%20like%20to%20inquire%20about%20your%20travel%20packages"
+                href="https://wa.me/+917356231571?text=Hi%20Roya%20Global%20Tourism%2C%20I%20would%20like%20to%20inquire%20about%20your%20travel%20packages"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-5 flex items-center justify-center gap-3 rounded-2xl py-3.5 text-white font-medium transition-all duration-300 hover:scale-[1.02]"

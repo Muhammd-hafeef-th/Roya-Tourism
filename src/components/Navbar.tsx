@@ -143,48 +143,26 @@ export default function Navbar({
             className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 relative z-10 text-left"
             aria-label="Roya Global Tourism – back to top"
           >
-            {/* Logo mark */}
-            <div
-              className="
-              relative flex-shrink-0
-              w-10 xs:w-11 sm:w-14 md:w-14 lg:w-12 xl:w-14 2xl:w-16 3xl:w-20 4xl:w-24
-              h-10 xs:h-11 sm:h-14 md:h-14 lg:h-12 xl:h-14 2xl:h-16 3xl:h-20 4xl:h-24
-              transition-transform duration-500 group-hover:scale-105
-            "
-            >
-              <img
-                src="/logo1.png"
-                alt="Roya Global Tourism logo"
-                className={`w-full h-full object-contain ${!isSolid ? "drop-shadow-[0_2px_8px_rgba(201,168,76,0.4)]" : ""}`}
-              />
-            </div>
+            <div className="relative flex-shrink-0">
+              <a
+                href="#hero"
+                className="group relative flex items-center justify-center py-2 pr-3"
+              >
+                <img
+                  src="/logo1.png"
+                  alt="Roya Global Tourism logo"
+                  className={`relative z-10 w-auto object-contain h-12 sm:h-14 lg:h-[64px] max-w-[170px] sm:max-w-[200px] lg:max-w-[230px] transition-all duration-300 ${!isSolid ? "drop-shadow-[0_4px_14px_rgba(201,168,76,0.22)]" : ""}`}
+                />
 
-            {/* Wordmark */}
-            <div className="flex flex-col leading-none select-none">
-              <span
-                className={`
-                font-serif font-semibold tracking-[0.12em] uppercase
-                text-xl xs:text-2xl sm:text-3xl md:text-3xl lg:text-2xl xl:text-3xl 2xl:text-4xl 3xl:text-5xl 4xl:text-6xl
-                transition-all duration-500
-                ${isSolid ? "text-stone-900" : "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]"}
-              `}
-              >
-                Roya
-              </span>
-              <span
-                className={`
-                font-sans font-medium tracking-[0.22em] uppercase
-                text-[0.4rem] xs:text-[0.43rem] sm:text-[0.48rem] md:text-[0.48rem] lg:text-[0.44rem] xl:text-[0.48rem] 2xl:text-[0.56rem] 3xl:text-[0.65rem] 4xl:text-[0.78rem]
-                mt-0.5
-                transition-all duration-500
-                ${isSolid ? "text-[#c9a84c]" : "text-[#c9a84c] drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]"}
-              `}
-              >
-                Global Tourism
-              </span>
+                {!isSolid && (
+                  <>
+                    <div className="pointer-events-none absolute inset-x-2 bottom-1 h-[26px] bg-[radial-gradient(circle,rgba(201,168,76,0.18)_0%,rgba(201,168,76,0.05)_40%,rgba(201,168,76,0)_78%)] blur-md" />
+                    <div className="pointer-events-none absolute -bottom-[2px] left-1/2 h-[1px] w-[72%] -translate-x-1/2 bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent opacity-90" />
+                  </>
+                )}
+              </a>
             </div>
           </button>
-
           {/* ══ DESKTOP NAV ══════════════════════════════════════ */}
           <div
             ref={navRef}
@@ -241,7 +219,7 @@ export default function Navbar({
           <div className="hidden lg:flex items-center gap-3 xl:gap-4 2xl:gap-5 3xl:gap-6 flex-shrink-0">
             {/* Phone */}
             <a
-              href="tel:+916235957243"
+              href="tel:+918136812345"
               className={`
                 flex items-center gap-1.5 xl:gap-2
                 text-xs xl:text-sm 2xl:text-base 3xl:text-lg 4xl:text-xl
@@ -254,7 +232,7 @@ export default function Navbar({
                 size={14}
                 className="flex-shrink-0 2xl:w-4 2xl:h-4 3xl:w-5 3xl:h-5"
               />
-              <span className="hidden 2xl:inline">+91 62359 57243</span>
+              <span className="hidden 2xl:inline">+91 81368 12345</span>
             </a>
 
             {/* Divider */}
@@ -390,20 +368,18 @@ export default function Navbar({
                 {/* Mini logo in drawer */}
                 <button
                   onClick={() => handleNav("#hero")}
-                  className="flex items-center gap-2.5 group text-left"
+                  className="group relative flex items-center text-left transition-all duration-300 focus:outline-none"
+                  aria-label="Roya Global Tourism – back to top"
                 >
-                  <img
-                    src="/logo1.png"
-                    alt="Roya"
-                    className="w-10 sm:w-12 h-10 sm:h-12 object-contain"
-                  />
-                  <div className="flex flex-col leading-none">
-                    <span className="font-serif font-semibold tracking-[0.1em] uppercase text-xl sm:text-2xl text-stone-900">
-                      Roya
-                    </span>
-                    <span className="font-sans font-medium tracking-[0.18em] uppercase text-[0.42rem] sm:text-[0.48rem] text-[#c9a84c] mt-0.5">
-                      Global Tourism
-                    </span>
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src="/logo1.png"
+                      alt="Roya"
+                      className="relative z-10 w-auto object-contain h-12 sm:h-14 lg:h-[64px] max-w-[160px] sm:max-w-[185px] lg:max-w-[210px] transition-all duration-300 group-hover:scale-[1.03] drop-shadow-[0_4px_14px_rgba(201,168,76,0.16)]"
+                    />
+
+                    <div className="pointer-events-none absolute inset-x-2 bottom-1 h-[22px] bg-[radial-gradient(circle,rgba(201,168,76,0.16)_0%,rgba(201,168,76,0.05)_40%,rgba(201,168,76,0)_78%)] blur-md" />
+                    <div className="pointer-events-none absolute -bottom-[2px] left-1/2 h-[1px] w-[72%] -translate-x-1/2 bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent opacity-90" />
                   </div>
                 </button>
 
@@ -460,7 +436,7 @@ export default function Navbar({
 
                 {/* Phone */}
                 <a
-                  href="tel:+916235957243"
+                  href="tel:+918136812345"
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-600 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all"
                 >
                   <div className="w-9 h-9 rounded-full bg-[#c9a84c]/10 flex items-center justify-center flex-shrink-0">
@@ -471,7 +447,7 @@ export default function Navbar({
                       Call us
                     </span>
                     <span className="font-sans font-medium text-sm sm:text-base">
-                      +91 62359 57243
+                      +91 81368 12345
                     </span>
                   </div>
                 </a>

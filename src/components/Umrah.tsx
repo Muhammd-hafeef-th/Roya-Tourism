@@ -5,23 +5,21 @@ import { Star, Hotel, Plane, Shield, MessageCircle, Check } from 'lucide-react';
 const packages = [
   {
     name: 'Silver Umrah',
-    badge: 'Popular',
+    badge: 'Best Value',
     duration: '10 Days',
-    price: '$1,299',
+    price: '$1,250',
     hotel: '3-Star Hotel — 500m from Haram',
-    flight: 'Economy Class — Direct Flight',
-    includes: ['Visa Processing', 'Airport Transfers', 'Group Guide', 'Daily Breakfast'],
+    includes: ['Visa Processing', 'Full Board', 'Group Guide', 'Daily Breakfast'],
     image: '/umrah4.webp',
     accent: false,
   },
   {
-    name: 'Gold Umrah',
-    badge: 'Best Value',
-    duration: '14 Days',
-    price: '$2,199',
-    hotel: '4-Star Hotel — 200m from Haram',
-    flight: 'Business Class — Direct Flight',
-    includes: ['Visa Processing', 'All Meals', 'Private Guide', 'Ziyarat Tours', 'Airport VIP'],
+    name: 'Premium Umrah',
+    badge: 'Premium',
+    duration: '21 Days',
+    price: '$2,099',
+    hotel: '5-Star Hotel — Adjacent to Haram',
+    includes: ['VIP Visa', 'Daily Meals', 'Dedicated Concierge', 'Exclusive Ziyarat', 'Luxury Transfers'],
     image: '/umrah3.webp',
     accent: true,
   },
@@ -31,7 +29,6 @@ const packages = [
     duration: '21 Days',
     price: '$4,499',
     hotel: '5-Star Hotel — Adjacent to Haram',
-    flight: 'First Class — Private Arrangement',
     includes: ['VIP Visa', 'Full Board', 'Dedicated Concierge', 'Exclusive Ziyarat', 'Luxury Transfers'],
     image: '/umrah2.webp',
     accent: false,
@@ -97,8 +94,8 @@ const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeo
           <div className="flex items-start gap-4">
             <div className="mt-0.5 p-2 rounded-full bg-[#c9a84c]/10"><Plane size={16} className="text-[#c9a84c]" /></div>
             <div>
-              <p className="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-1">Transport</p>
-              <p className="text-sm text-stone-700 font-medium leading-snug">{pkg.flight}</p>
+              <p className="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-1">Trip</p>
+              <p className="text-sm text-stone-700 font-medium leading-snug">Customize Your Trip</p>
             </div>
           </div>
         </div>
@@ -119,7 +116,7 @@ const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeo
         </div>
 
         <a
-          href={`https://wa.me/6235957243?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.name)}%20package`}
+          href={`https://wa.me/+917356231571?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.name)}%20package`}
           target="_blank"
           rel="noopener noreferrer"
           className={`mt-auto w-full group flex items-center justify-center gap-2 py-4 rounded-2xl text-xs sm:text-sm font-bold tracking-widest uppercase transition-all duration-300 ${

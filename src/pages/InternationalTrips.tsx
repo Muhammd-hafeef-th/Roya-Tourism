@@ -22,7 +22,7 @@ function DestinationCard({ pkg }: { pkg: typeof internationalPackages[0] }) {
       className={`group relative w-full aspect-[4/5] sm:aspect-[3/4] rounded-[2rem] overflow-hidden cursor-pointer ${
         pkg.isSpecialized ? 'ring-2 ring-[#c9a84c] shadow-[0_20px_50px_rgba(201,168,76,0.2)] z-10' : 'shadow-xl shadow-stone-200/50 hover:shadow-2xl'
       }`}
-      onClick={() => window.open(`https://wa.me/6235957243?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.destination)}%20package`, '_blank')}
+      onClick={() => window.open(`https://wa.me/+917356231571?text=I'm%20interested%20in%20the%20${encodeURIComponent(pkg.destination)}%20package`, '_blank')}
     >
       {/* Background Image */}
       <img

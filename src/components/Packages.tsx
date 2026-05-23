@@ -10,7 +10,7 @@ const BentoCard = React.memo(function BentoCard({ pkg, index, isLarge }: { pkg: 
   const inView = useInView(ref, { once: true, margin: '-50px' });
 
   const handleClick = useCallback(() => {
-    const url = `https://wa.me/6235957243?text=${encodeURIComponent("I'm interested in the " + pkg.destination + ' package')}`;
+    const url = `https://wa.me/+917356231571?text=${encodeURIComponent("I'm interested in the " + pkg.destination + ' package')}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   }, [pkg.destination]);
 
