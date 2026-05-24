@@ -102,7 +102,7 @@ export default function Footer() {
                 () =>
                   [
                     { Icon: Instagram, href: "https://www.instagram.com/royaglobal.in?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==", label: "Instagram" },
-                    { Icon: Facebook, href: "#", label: "Facebook" },
+                    { Icon: Facebook, href: "https://www.facebook.com/share/1CiwwfpBcV/?mibextid=wwXIfr", label: "Facebook" },
                   ].map((s) => (
                     <a
                       key={s.label}
