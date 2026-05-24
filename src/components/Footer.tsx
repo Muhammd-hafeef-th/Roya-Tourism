@@ -101,7 +101,7 @@ export default function Footer() {
               {useMemo(
                 () =>
                   [
-                    { Icon: Instagram, href: "#", label: "Instagram" },
+                    { Icon: Instagram, href: "https://www.instagram.com/royaglobal.in?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==", label: "Instagram" },
                     { Icon: Facebook, href: "#", label: "Facebook" },
                   ].map((s) => (
                     <a
