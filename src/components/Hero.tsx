@@ -13,7 +13,8 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
   const posterRef = useRef<HTMLImageElement>(null);
   const renderRequestRef = useRef<number | null>(null);
   const [vw, setVw] = useState(() => typeof window === 'undefined' ? 0 : window.innerWidth);
-  const [canvasReady, setCanvasReady] = useState(false);
+  const [loadedFrameCount, setLoadedFrameCount] = useState(0);
+  const [sequenceReady, setSequenceReady] = useState(false);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -34,6 +35,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
   const isTablet = vw >= BP.sm && vw < BP.lg;
   const isTV = vw >= BP.tv;
   const sectionH = isMobile ? '300vh' : isTablet ? '350vh' : isTV ? '450vh' : '380vh';
+  const frameBasePath = isMobile ? '/frames-mobile' : isTablet ? '/frames-tablet' : isTV ? '/frames-large' : '/frames-desktop';
 
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
   const p = useSpring(scrollYProgress, { stiffness: isMobile ? 140 : 120, damping: isMobile ? 20 : 18, restDelta: 0.0005, mass: 0.8 });
@@ -46,21 +48,25 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
     if (!ctx) return;
 
     let active = true;
+    let playbackReady = false;
     let lastRenderedFrame = -1;
-    let lastRenderedImage: HTMLImageElement | null = null;
-    let requestedFrame = 0;
-    const mobileLayout = window.innerWidth < BP.sm;
-    const tabletLayout = window.innerWidth >= BP.sm && window.innerWidth < BP.lg;
-    const preloadRadius = mobileLayout ? 2 : tabletLayout ? 3 : 5;
-    const cacheLimit = mobileLayout ? 6 : tabletLayout ? 10 : 18;
-    const maxConcurrent = mobileLayout ? 2 : tabletLayout ? 3 : 5;
-    const loadedFrames = new Map<number, HTMLImageElement>();
-    const loadingFrames = new Set<number>();
-    const queuedFrames = new Set<number>();
-    let loadQueue: number[] = [];
+    let completedFrames = 0;
+    let nextFrameToLoad = 0;
+    const concurrency = isMobile ? 8 : isTablet ? 8 : 10;
+    const frames: HTMLImageElement[] = new Array(FRAME_COUNT);
+    const root = document.documentElement;
+    const previousRootOverflow = root.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const lockScrollDuringLoad = window.scrollY < window.innerHeight;
+
+    setLoadedFrameCount(0);
+    setSequenceReady(false);
+    if (lockScrollDuringLoad) {
+      root.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
 
     const renderImage = (img: HTMLImageElement, frame: number) => {
-      if (!canvas || !ctx) return;
       const canvasRatio = canvas.width / canvas.height;
       const imgRatio = img.naturalWidth / img.naturalHeight;
       let drawWidth = canvas.width;
@@ -76,156 +82,98 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
         offsetX = (canvas.width - drawWidth) / 2;
       }
 
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
       lastRenderedFrame = frame;
-      lastRenderedImage = img;
-      setCanvasReady(true);
-    };
-
-    const renderAvailableFrame = (frame: number) => {
-      const exactFrame = loadedFrames.get(frame);
-      if (exactFrame) {
-        if (frame !== lastRenderedFrame) renderImage(exactFrame, frame);
-        return;
-      }
-
-      if (lastRenderedImage) return;
-
-      const fallbackFrame = loadedFrames.get(0);
-      if (fallbackFrame) renderImage(fallbackFrame, 0);
     };
 
     const scheduleRender = (frame: number, force = false) => {
+      if (!playbackReady) return;
       if (renderRequestRef.current !== null) {
         cancelAnimationFrame(renderRequestRef.current);
         renderRequestRef.current = null;
       }
       renderRequestRef.current = requestAnimationFrame(() => {
         if (!active) return;
-        if (force && lastRenderedImage) {
-          renderImage(lastRenderedImage, lastRenderedFrame);
-        } else {
-          renderAvailableFrame(frame);
-        }
+        const image = frames[frame];
+        if (image && (force || frame !== lastRenderedFrame)) renderImage(image, frame);
         renderRequestRef.current = null;
       });
     };
 
-    const trimFrameCache = () => {
-      if (loadedFrames.size <= cacheLimit) return;
-
-      const protectedFrames = new Set([0, requestedFrame, lastRenderedFrame]);
-      const evictionCandidates = [...loadedFrames.keys()]
-        .filter((frame) => !protectedFrames.has(frame))
-        .sort((a, b) => Math.abs(b - requestedFrame) - Math.abs(a - requestedFrame));
-
-      while (loadedFrames.size > cacheLimit && evictionCandidates.length > 0) {
-        const frame = evictionCandidates.shift();
-        if (frame !== undefined) loadedFrames.delete(frame);
+    const finishLoading = () => {
+      if (!active || completedFrames !== FRAME_COUNT) return;
+      playbackReady = true;
+      setSequenceReady(true);
+      if (lockScrollDuringLoad) {
+        root.style.overflow = previousRootOverflow;
+        document.body.style.overflow = previousBodyOverflow;
       }
-    };
-
-    const loadNextFrames = () => {
-      while (active && loadingFrames.size < maxConcurrent && loadQueue.length > 0) {
-        const index = loadQueue.shift();
-        if (index === undefined) return;
-        queuedFrames.delete(index);
-        if (loadedFrames.has(index) || loadingFrames.has(index)) continue;
-
-        loadingFrames.add(index);
-        const img = new Image();
-        img.decoding = 'async';
-        img.src = `/frames/frame_${(index + 1).toString().padStart(4, '0')}.webp`;
-
-        img.onload = () => {
-          if (!active) return;
-          loadingFrames.delete(index);
-          loadedFrames.set(index, img);
-          trimFrameCache();
-          if (index === requestedFrame || !lastRenderedImage) scheduleRender(requestedFrame);
-          loadNextFrames();
-        };
-
-        img.onerror = () => {
-          loadingFrames.delete(index);
-          loadNextFrames();
-        };
-      }
-    };
-
-    const queueFrame = (index: number, priority = false) => {
-      if (!active || index < 0 || index >= FRAME_COUNT) return;
-      if (index === 0) return;
-      if (loadedFrames.has(index) || loadingFrames.has(index) || queuedFrames.has(index)) return;
-
-      queuedFrames.add(index);
-      if (priority) loadQueue.unshift(index);
-      else loadQueue.push(index);
-    };
-
-    const requestFrame = (frame: number) => {
-      requestedFrame = Math.max(0, Math.min(FRAME_COUNT - 1, frame));
-      loadQueue = loadQueue.filter((queuedFrame) => {
-        const keep = queuedFrame === 0 || Math.abs(queuedFrame - requestedFrame) <= preloadRadius + 1;
-        if (!keep) queuedFrames.delete(queuedFrame);
-        return keep;
-      });
-
-      queueFrame(requestedFrame, true);
-      for (let offset = 1; offset <= preloadRadius; offset += 1) {
-        queueFrame(requestedFrame + offset);
-        queueFrame(requestedFrame - offset);
-      }
-
-      scheduleRender(requestedFrame);
-      loadNextFrames();
-    };
-
-    const registerPosterFrame = () => {
-      const poster = posterRef.current;
-      if (!active || !poster || !poster.complete || poster.naturalWidth === 0) return;
-      loadedFrames.set(0, poster);
-      scheduleRender(requestedFrame);
-      if (requestedFrame === 0) {
-        for (let index = 1; index <= preloadRadius; index += 1) queueFrame(index);
-      }
-      loadNextFrames();
+      scheduleRender(Math.round(p.get() * (FRAME_COUNT - 1)), true);
     };
 
     const resizeCanvas = () => {
-      if (!canvas) return;
-      const dpr = window.innerWidth < BP.lg ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = isMobile || isTablet ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.round(window.innerWidth * dpr);
       canvas.height = Math.round(window.innerHeight * dpr);
-      const currentFrame = Math.round(p.get() * (FRAME_COUNT - 1));
-      requestedFrame = currentFrame;
-      scheduleRender(currentFrame, true);
+      scheduleRender(Math.round(p.get() * (FRAME_COUNT - 1)), true);
     };
 
-    const poster = posterRef.current;
-    poster?.addEventListener('load', registerPosterFrame);
-    registerPosterFrame();
+    const loadFrame = async (index: number) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.fetchPriority = index < concurrency ? 'high' : 'auto';
+      image.src = `${frameBasePath}/frame_${(index + 1).toString().padStart(4, '0')}.webp`;
+
+      await new Promise<void>((resolve) => {
+        image.onload = () => resolve();
+        image.onerror = () => resolve();
+      });
+
+      try {
+        await image.decode();
+      } catch {
+        // The load event has already confirmed a drawable fallback.
+      }
+
+      if (!active) return;
+      frames[index] = image;
+      completedFrames += 1;
+      setLoadedFrameCount(completedFrames);
+      finishLoading();
+    };
+
+    const runLoader = async () => {
+      while (active) {
+        const index = nextFrameToLoad;
+        nextFrameToLoad += 1;
+        if (index >= FRAME_COUNT) return;
+        await loadFrame(index);
+      }
+    };
+
     resizeCanvas();
-    requestFrame(Math.round(p.get() * (FRAME_COUNT - 1)));
     window.addEventListener('resize', resizeCanvas, { passive: true });
 
     const unsubscribe = p.on('change', (latest) => {
-      const currentFrame = Math.round(latest * (FRAME_COUNT - 1));
-      if (currentFrame !== requestedFrame) requestFrame(currentFrame);
+      scheduleRender(Math.round(latest * (FRAME_COUNT - 1)));
     });
+
+    void Promise.all(Array.from({ length: concurrency }, () => runLoader()));
 
     return () => {
       active = false;
-      poster?.removeEventListener('load', registerPosterFrame);
+      if (lockScrollDuringLoad) {
+        root.style.overflow = previousRootOverflow;
+        document.body.style.overflow = previousBodyOverflow;
+      }
       window.removeEventListener('resize', resizeCanvas);
       unsubscribe();
       if (renderRequestRef.current !== null) {
         cancelAnimationFrame(renderRequestRef.current);
       }
-      loadedFrames.clear();
-      loadQueue = [];
     };
-  }, [p]);
+  }, [frameBasePath, isMobile, isTablet, p]);
 
   const textY = useTransform(p, [0, 0.28], ['0%', '-20%']);
   const textOp = useTransform(p, [0, 0.20, 0.28], [1, 1, 0]);
@@ -249,26 +197,25 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
   const headlineSize = isMobile ? 'clamp(2rem, 9vw, 2.8rem)' : isTablet ? 'clamp(3.8rem, 7.5vw, 5rem)' : isTV ? 'clamp(8.5rem, 8.5vw, 12rem)' : 'clamp(4.8rem, 7vw, 7.5rem)';
   const subSize = isMobile ? 'clamp(0.8rem, 3.5vw, 0.95rem)' : isTablet ? 'clamp(0.95rem, 2vw, 1.1rem)' : isTV ? 'clamp(1.5rem, 1.4vw, 1.85rem)' : 'clamp(1rem, 1.3vw, 1.25rem)';
 
-  const isReady = canvasReady;
+  const loadingProgress = Math.round((loadedFrameCount / FRAME_COUNT) * 100);
 
   return (
     <section id="hero" ref={containerRef} className="relative w-full bg-stone-950" style={{ height: sectionH }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-stone-950">
         <img
           ref={posterRef}
-          src="/frames/frame_0001.webp"
+          src={`${frameBasePath}/frame_0001.webp`}
           alt=""
           aria-hidden="true"
           fetchPriority="high"
           decoding="async"
-          onLoad={() => setCanvasReady(true)}
           className="absolute inset-0 h-full w-full object-cover"
         />
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
-            opacity: isReady ? 1 : 0,
+            opacity: sequenceReady ? 1 : 0,
             transition: 'opacity 350ms ease-out',
           }}
         />
@@ -528,9 +475,9 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
 
         <motion.div
           initial={{ opacity: 1 }}
-          animate={{ opacity: isReady ? 0 : 1 }}
+          animate={{ opacity: sequenceReady ? 0 : 1 }}
           transition={{ duration: isMobile ? 0.8 : 1.2, ease: 'easeInOut' }}
-          className="absolute inset-0 z-50 bg-stone-950 flex flex-col items-center justify-center pointer-events-none"
+          className="absolute inset-0 z-50 bg-stone-950/45 backdrop-blur-[1px] flex flex-col items-center justify-center pointer-events-none"
         >
           <div className="flex flex-col items-center gap-6">
             <div className="w-[1px] h-16 bg-white/10 relative overflow-hidden">
@@ -546,7 +493,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
                 Preparing Journey
               </span>
               <span className="text-white/50 font-serif italic text-sm">
-                Loading imagery
+                {loadingProgress}%
               </span>
             </div>
           </div>

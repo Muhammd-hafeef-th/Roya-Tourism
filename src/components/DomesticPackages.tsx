@@ -59,6 +59,9 @@ export default function DomesticPackages() {
                 <img
                   src={pkg.image}
                   alt={pkg.destination}
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s]"
                   style={{ transform: isActive ? 'scale(1.05)' : 'scale(1)' }}
                 />
@@ -132,6 +135,9 @@ export default function DomesticPackages() {
                     <img
                       src={pkg.image}
                       alt={pkg.destination}
+                      loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-900/10 to-stone-950/90" />
@@ -188,6 +194,9 @@ export default function DomesticPackages() {
                     <img
                       src={pkg.image}
                       alt={pkg.destination}
+                      loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
                       className="w-full h-full object-cover object-center transition-transform duration-[1400ms] group-hover:scale-105"
                     />
 

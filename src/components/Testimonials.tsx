@@ -190,6 +190,9 @@ export default function Testimonials() {
                           <img
                             src={item.image}
                             alt={item.name}
+                            loading="lazy"
+                            decoding="async"
+                            fetchPriority="low"
                             className="w-20 h-20 rounded-[26px] object-cover border border-white shadow-lg"
                           />
 
@@ -306,6 +309,9 @@ export default function Testimonials() {
               <img
                 src={testimonials[current].image}
                 alt={testimonials[current].name}
+                loading="lazy"
+                decoding="async"
+                fetchPriority="low"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1800ms] group-hover:scale-105"
               />
 
@@ -390,6 +396,9 @@ export default function Testimonials() {
                       <img
                         src={item.image}
                         alt={item.name}
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
                         className="w-16 h-16 rounded-[20px] object-cover"
                       />
 
