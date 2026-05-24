@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, ChevronDown, X, Menu } from "lucide-react";
+import { Phone, X, Menu } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 /* ─── Nav link data ────────────────────────────────────────────── */
@@ -395,7 +395,7 @@ export default function Navbar({
 
               {/* Nav links */}
               <nav className="flex-1 px-4 sm:px-6 py-4 sm:py-6 flex flex-col gap-1 sm:gap-1.5">
-                {navLinks.map((link, i) => (
+                {navLinks.map((link) => (
                   <button
                     key={link.href}
                     onClick={() => handleNav(link.href)}

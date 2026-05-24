@@ -1,8 +1,6 @@
 import {
   Instagram,
   Facebook,
-  Twitter,
-  Youtube,
   Phone,
   Mail,
   MapPin,
@@ -105,7 +103,7 @@ export default function Footer() {
                   [
                     { Icon: Instagram, href: "#", label: "Instagram" },
                     { Icon: Facebook, href: "#", label: "Facebook" },
-                  ].map((s, i) => (
+                  ].map((s) => (
                     <a
                       key={s.label}
                       href={s.href}

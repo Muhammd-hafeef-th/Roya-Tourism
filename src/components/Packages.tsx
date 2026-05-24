@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { internationalPackages } from '../data/packagesData';
 
 const BentoCard = React.memo(function BentoCard({ pkg, index, isLarge }: { pkg: typeof internationalPackages[0]; index: number; isLarge?: boolean }) {
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const prefersReduced = useReducedMotion();
   const inView = useInView(ref, { once: true, margin: '-50px' });
 
@@ -16,7 +16,7 @@ const BentoCard = React.memo(function BentoCard({ pkg, index, isLarge }: { pkg: 
 
   return (
     <motion.div
-      ref={ref as any}
+      ref={ref}
       initial={prefersReduced ? undefined : { opacity: 0, scale: 0.96, y: 30 }}
       animate={inView && !prefersReduced ? { opacity: 1, scale: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay: index * 0.12, ease: [0.21, 0.47, 0.32, 0.98] }}
@@ -32,7 +32,7 @@ const BentoCard = React.memo(function BentoCard({ pkg, index, isLarge }: { pkg: 
         alt={pkg.destination}
         loading="lazy"
         decoding="async"
-        fetchpriority="low"
+        fetchPriority="low"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] ease-out will-change-transform group-hover:scale-110"
       />
       
@@ -104,8 +104,6 @@ const BentoCard = React.memo(function BentoCard({ pkg, index, isLarge }: { pkg: 
 export default function Packages() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
-  const prefersReduced = useReducedMotion();
-
   // Use 5 packages for the mobile slider (desktop grid will only pick the first 3)
   const displayPackages = useMemo(() => internationalPackages.slice(0, 5), []);
 

@@ -1,5 +1,5 @@
-import React, { useRef, useCallback } from 'react';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Star, Hotel, Plane, Shield, MessageCircle, Check } from 'lucide-react';
 
 const packages = [
@@ -38,7 +38,6 @@ const packages = [
 const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeof packages[0]; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-50px' });
-  const prefersReduced = useReducedMotion();
   const isMiddle = pkg.accent;
 
   return (
@@ -139,8 +138,6 @@ export default function Umrah() {
 
   const badgesRef = useRef(null);
   const isBadgesInView = useInView(badgesRef, { once: true, margin: '-100px' });
-  const prefersReduced = useReducedMotion();
-
   return (
     <section id="umrah" className="pt-12 pb-12 lg:pt-20 lg:pb-24 relative overflow-hidden bg-[#faf9f7]">
       {/* Background Decor */}

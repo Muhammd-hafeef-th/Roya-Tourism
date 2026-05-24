@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CinematicIntroProps {
@@ -25,8 +25,6 @@ export default function CinematicIntro({ onComplete, onExitStart }: CinematicInt
     }, INTRO_DURATION);
     return () => clearTimeout(exitTimer);
   }, [onExitStart]);
-
-  const preloadRef = useRef<HTMLVideoElement>(null);
 
   const ease = [0.16, 1, 0.3, 1] as const;
   const slideEase = [0.76, 0, 0.24, 1] as const;

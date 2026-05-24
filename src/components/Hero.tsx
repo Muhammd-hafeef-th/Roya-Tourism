@@ -10,10 +10,9 @@ const FRAME_COUNT = 121;
 export default function Hero({ startAnimation = true }: { startAnimation?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const posterRef = useRef<HTMLImageElement>(null);
   const renderRequestRef = useRef<number | null>(null);
-  const [vw, setVw] = useState(0);
-  const [imagesLoaded, setImagesLoaded] = useState(0);
+  const [vw, setVw] = useState(() => typeof window === 'undefined' ? 0 : window.innerWidth);
   const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
@@ -43,25 +42,27 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
     if (!canvasRef.current) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d', { alpha: false });
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
     if (!ctx) return;
 
     let active = true;
-    let loadedCount = 0;
     let lastRenderedFrame = -1;
-    const images = imagesRef.current;
-    images.length = 0;
+    let lastRenderedImage: HTMLImageElement | null = null;
+    let requestedFrame = 0;
+    const mobileLayout = window.innerWidth < BP.sm;
+    const tabletLayout = window.innerWidth >= BP.sm && window.innerWidth < BP.lg;
+    const preloadRadius = mobileLayout ? 2 : tabletLayout ? 3 : 5;
+    const cacheLimit = mobileLayout ? 6 : tabletLayout ? 10 : 18;
+    const maxConcurrent = mobileLayout ? 2 : tabletLayout ? 3 : 5;
+    const loadedFrames = new Map<number, HTMLImageElement>();
+    const loadingFrames = new Set<number>();
+    const queuedFrames = new Set<number>();
+    let loadQueue: number[] = [];
 
-    const renderFrame = (frame: number) => {
+    const renderImage = (img: HTMLImageElement, frame: number) => {
       if (!canvas || !ctx) return;
-      if (frame === lastRenderedFrame) return;
-      
-      const img = images[frame] || images[0];
-      if (!img || !img.complete) return;
-
-      lastRenderedFrame = frame;
       const canvasRatio = canvas.width / canvas.height;
-      const imgRatio = img.width / img.height;
+      const imgRatio = img.naturalWidth / img.naturalHeight;
       let drawWidth = canvas.width;
       let drawHeight = canvas.height;
       let offsetX = 0;
@@ -75,84 +76,156 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
         offsetX = (canvas.width - drawWidth) / 2;
       }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+      lastRenderedFrame = frame;
+      lastRenderedImage = img;
+      setCanvasReady(true);
     };
 
-    const scheduleRender = (frame: number) => {
+    const renderAvailableFrame = (frame: number) => {
+      const exactFrame = loadedFrames.get(frame);
+      if (exactFrame) {
+        if (frame !== lastRenderedFrame) renderImage(exactFrame, frame);
+        return;
+      }
+
+      if (lastRenderedImage) return;
+
+      const fallbackFrame = loadedFrames.get(0);
+      if (fallbackFrame) renderImage(fallbackFrame, 0);
+    };
+
+    const scheduleRender = (frame: number, force = false) => {
       if (renderRequestRef.current !== null) {
         cancelAnimationFrame(renderRequestRef.current);
         renderRequestRef.current = null;
       }
       renderRequestRef.current = requestAnimationFrame(() => {
         if (!active) return;
-        renderFrame(frame);
+        if (force && lastRenderedImage) {
+          renderImage(lastRenderedImage, lastRenderedFrame);
+        } else {
+          renderAvailableFrame(frame);
+        }
         renderRequestRef.current = null;
       });
     };
 
-    const preloadFrame = (index: number) => {
-      if (!active) return;
-      const img = new Image();
-      img.src = `/frames/frame_${index.toString().padStart(4, '0')}.webp`;
-      images[index - 1] = img;
+    const trimFrameCache = () => {
+      if (loadedFrames.size <= cacheLimit) return;
 
-      img.onload = () => {
-        if (!active) return;
-        loadedCount += 1;
-        setImagesLoaded(loadedCount);
-        if (loadedCount === 1) setCanvasReady(true);
+      const protectedFrames = new Set([0, requestedFrame, lastRenderedFrame]);
+      const evictionCandidates = [...loadedFrames.keys()]
+        .filter((frame) => !protectedFrames.has(frame))
+        .sort((a, b) => Math.abs(b - requestedFrame) - Math.abs(a - requestedFrame));
 
-        const currentFrame = Math.round(p.get() * (FRAME_COUNT - 1));
-        scheduleRender(currentFrame);
-      };
-    };
-
-    const preloadBatch = (start: number, end: number) => {
-      for (let i = start; i <= end && i <= FRAME_COUNT; i += 1) {
-        preloadFrame(i);
+      while (loadedFrames.size > cacheLimit && evictionCandidates.length > 0) {
+        const frame = evictionCandidates.shift();
+        if (frame !== undefined) loadedFrames.delete(frame);
       }
     };
 
-    const preloadRemaining = (start: number) => {
-      if (!active || start > FRAME_COUNT) return;
-      const nextEnd = Math.min(start + 16, FRAME_COUNT);
-      preloadBatch(start, nextEnd);
-      const nextStart = nextEnd + 1;
-      if (nextStart <= FRAME_COUNT) {
-        window.setTimeout(() => preloadRemaining(nextStart), 80);
+    const loadNextFrames = () => {
+      while (active && loadingFrames.size < maxConcurrent && loadQueue.length > 0) {
+        const index = loadQueue.shift();
+        if (index === undefined) return;
+        queuedFrames.delete(index);
+        if (loadedFrames.has(index) || loadingFrames.has(index)) continue;
+
+        loadingFrames.add(index);
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = `/frames/frame_${(index + 1).toString().padStart(4, '0')}.webp`;
+
+        img.onload = () => {
+          if (!active) return;
+          loadingFrames.delete(index);
+          loadedFrames.set(index, img);
+          trimFrameCache();
+          if (index === requestedFrame || !lastRenderedImage) scheduleRender(requestedFrame);
+          loadNextFrames();
+        };
+
+        img.onerror = () => {
+          loadingFrames.delete(index);
+          loadNextFrames();
+        };
       }
+    };
+
+    const queueFrame = (index: number, priority = false) => {
+      if (!active || index < 0 || index >= FRAME_COUNT) return;
+      if (index === 0) return;
+      if (loadedFrames.has(index) || loadingFrames.has(index) || queuedFrames.has(index)) return;
+
+      queuedFrames.add(index);
+      if (priority) loadQueue.unshift(index);
+      else loadQueue.push(index);
+    };
+
+    const requestFrame = (frame: number) => {
+      requestedFrame = Math.max(0, Math.min(FRAME_COUNT - 1, frame));
+      loadQueue = loadQueue.filter((queuedFrame) => {
+        const keep = queuedFrame === 0 || Math.abs(queuedFrame - requestedFrame) <= preloadRadius + 1;
+        if (!keep) queuedFrames.delete(queuedFrame);
+        return keep;
+      });
+
+      queueFrame(requestedFrame, true);
+      for (let offset = 1; offset <= preloadRadius; offset += 1) {
+        queueFrame(requestedFrame + offset);
+        queueFrame(requestedFrame - offset);
+      }
+
+      scheduleRender(requestedFrame);
+      loadNextFrames();
+    };
+
+    const registerPosterFrame = () => {
+      const poster = posterRef.current;
+      if (!active || !poster || !poster.complete || poster.naturalWidth === 0) return;
+      loadedFrames.set(0, poster);
+      scheduleRender(requestedFrame);
+      if (requestedFrame === 0) {
+        for (let index = 1; index <= preloadRadius; index += 1) queueFrame(index);
+      }
+      loadNextFrames();
     };
 
     const resizeCanvas = () => {
       if (!canvas) return;
-      const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      const dpr = window.innerWidth < BP.lg ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
       const currentFrame = Math.round(p.get() * (FRAME_COUNT - 1));
-      scheduleRender(currentFrame);
+      requestedFrame = currentFrame;
+      scheduleRender(currentFrame, true);
     };
 
-    preloadBatch(1, Math.min(32, FRAME_COUNT));
-    preloadRemaining(33);
+    const poster = posterRef.current;
+    poster?.addEventListener('load', registerPosterFrame);
+    registerPosterFrame();
     resizeCanvas();
+    requestFrame(Math.round(p.get() * (FRAME_COUNT - 1)));
     window.addEventListener('resize', resizeCanvas, { passive: true });
 
     const unsubscribe = p.on('change', (latest) => {
       const currentFrame = Math.round(latest * (FRAME_COUNT - 1));
-      scheduleRender(currentFrame);
+      if (currentFrame !== requestedFrame) requestFrame(currentFrame);
     });
 
     return () => {
       active = false;
+      poster?.removeEventListener('load', registerPosterFrame);
       window.removeEventListener('resize', resizeCanvas);
       unsubscribe();
       if (renderRequestRef.current !== null) {
         cancelAnimationFrame(renderRequestRef.current);
       }
-      images.length = 0;
+      loadedFrames.clear();
+      loadQueue = [];
     };
-  }, [p, isMobile]);
+  }, [p]);
 
   const textY = useTransform(p, [0, 0.28], ['0%', '-20%']);
   const textOp = useTransform(p, [0, 0.20, 0.28], [1, 1, 0]);
@@ -176,18 +249,27 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
   const headlineSize = isMobile ? 'clamp(2rem, 9vw, 2.8rem)' : isTablet ? 'clamp(3.8rem, 7.5vw, 5rem)' : isTV ? 'clamp(8.5rem, 8.5vw, 12rem)' : 'clamp(4.8rem, 7vw, 7.5rem)';
   const subSize = isMobile ? 'clamp(0.8rem, 3.5vw, 0.95rem)' : isTablet ? 'clamp(0.95rem, 2vw, 1.1rem)' : isTV ? 'clamp(1.5rem, 1.4vw, 1.85rem)' : 'clamp(1rem, 1.3vw, 1.25rem)';
 
-  const loadingProgress = Math.round((imagesLoaded / FRAME_COUNT) * 100);
   const isReady = canvasReady;
 
   return (
     <section id="hero" ref={containerRef} className="relative w-full bg-stone-950" style={{ height: sectionH }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-stone-950">
+        <img
+          ref={posterRef}
+          src="/frames/frame_0001.webp"
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
+          onLoad={() => setCanvasReady(true)}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
             opacity: isReady ? 1 : 0,
-            transition: 'opacity 1s ease-in-out',
+            transition: 'opacity 350ms ease-out',
           }}
         />
 
@@ -464,7 +546,7 @@ export default function Hero({ startAnimation = true }: { startAnimation?: boole
                 Preparing Journey
               </span>
               <span className="text-white/50 font-serif italic text-sm">
-                {loadingProgress}%
+                Loading imagery
               </span>
             </div>
           </div>

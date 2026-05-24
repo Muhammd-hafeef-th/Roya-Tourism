@@ -95,14 +95,15 @@ export default function Contact() {
 
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = window.setTimeout(() => setSent(false), 4000);
-    } catch (error: any) {
-      console.error("EmailJS error status:", error?.status);
-      console.error("EmailJS error text:", error?.text);
+    } catch (error: unknown) {
+      const emailError = error as { status?: number; text?: string };
+      console.error("EmailJS error status:", emailError.status);
+      console.error("EmailJS error text:", emailError.text);
       console.error("EmailJS full error:", error);
 
-      if (error?.status === 400) {
+      if (emailError.status === 400) {
         setErrorMsg("Invalid EmailJS config or template fields.");
-      } else if (error?.status === 429) {
+      } else if (emailError.status === 429) {
         setErrorMsg("Too many attempts. Please wait a minute and try again.");
       } else {
         setErrorMsg("Failed to send message. Please try again.");

@@ -13,6 +13,7 @@ import {
   Waves,
   Filter,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { domesticPackages } from '../data/packagesData';
 
 type LenisScrollWindow = Window & {
@@ -30,7 +31,7 @@ const ITEMS_PER_PAGE = {
 const STATES = ['All', ...Array.from(new Set(domesticPackages.map((pkg) => pkg.state)))];
 
 const getStateIcon = (state: string) => {
-  const iconMap: Record<string, any> = {
+  const iconMap: Record<string, LucideIcon> = {
     Kerala: Trees,
     Goa: Waves,
     Lakshadweep: Waves,
@@ -471,4 +472,4 @@ export default function DomesticTrips() {
       </div>
     </div>
   );
-} 
+}

@@ -17,6 +17,12 @@ import WhatsAppButton from './components/WhatsAppButton';
 const InternationalTrips = lazy(() => import('./pages/InternationalTrips'));
 const DomesticTrips = lazy(() => import('./pages/DomesticTrips'));
 
+type LenisWindow = Window & {
+  lenis?: {
+    scrollTo(target: number, options: { immediate?: boolean; duration?: number }): void;
+  };
+};
+
 function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
   const location = useLocation();
 
@@ -44,8 +50,9 @@ function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
 
         if (Math.abs(targetY - lastY) > 5) {
           lastY = targetY;
-          if ((window as any).lenis) {
-            (window as any).lenis.scrollTo(targetY, { duration: 1.2 });
+          const lenis = (window as unknown as LenisWindow).lenis;
+          if (lenis) {
+            lenis.scrollTo(targetY, { duration: 1.2 });
           } else {
             window.scrollTo({ top: targetY, behavior: 'smooth' });
           }
@@ -159,8 +166,9 @@ function ScrollToTop() {
 
   useEffect(() => {
     if (!hash) {
-      if ((window as any).lenis) {
-        (window as any).lenis.scrollTo(0, { immediate: true });
+      const lenis = (window as unknown as LenisWindow).lenis;
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
       } else {
         window.scrollTo(0, 0);
       }
