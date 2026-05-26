@@ -78,9 +78,9 @@ function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
       <Hero startAnimation={startHeroAnimation} />
       <ScrollJourney />
       <About />
-      <Umrah />
       <Packages />
       <DomesticPackages />
+      <Umrah />
       <Testimonials />
       <Contact />
     </>

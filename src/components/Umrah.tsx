@@ -24,12 +24,13 @@ const packages = [
     accent: true,
   },
   {
-    name: 'Royal Umrah',
-    badge: 'Premium Experience',
-    duration: '21 Days',
-    price: '$4,499',
-    hotel: '5-Star Hotel — Adjacent to Haram',
-    includes: ['VIP Visa', 'Full Board', 'Dedicated Concierge', 'Exclusive Ziyarat', 'Luxury Transfers'],
+    name: 'Holly Quaran',
+    badge: 'Holly Quaran',
+    duration: '10 Days',
+    price: '$1499',
+    hotel: 'Best Comfort Experience',
+    highlights: 'Premium Services',
+    includes: ['Jordan', 'Palastine', 'Egypt',],
     image: '/umrah2.webp',
     accent: false,
   },
@@ -95,8 +96,18 @@ const PackageCard = React.memo(function PackageCard({ pkg, index }: { pkg: typeo
             <div>
               <p className="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-1">Trip</p>
               <p className="text-sm text-stone-700 font-medium leading-snug">Customize Your Trip</p>
-            </div>
+            </div>      
           </div>
+          {pkg.highlights && (
+              <div className="flex items-start gap-4">
+            <div className="mt-0.5 p-2 rounded-full bg-[#c9a84c]/10"><Plane size={16} className="text-[#c9a84c]" /></div>
+            <div>
+              <p className="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-1">Highlights</p>
+              <p className="text-sm text-stone-700 font-medium leading-snug">{pkg.highlights}</p>
+            </div>      
+          </div>
+            )}
+
         </div>
 
         <div className="mb-6 px-2">
