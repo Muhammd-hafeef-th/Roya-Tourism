@@ -245,7 +245,7 @@ export const domesticPackages = [
     country: "India",
     state: "Kerala",
     duration: "5 Days / 4 Nights",
-    price: "$699",
+    price: "$399",
     priceNote: "per person",
     stars: 5,
     hotel: "Kumarakom Lake Resort",
