@@ -128,7 +128,7 @@ export default function EmailButton() {
                       value={form.from_email}
                       onChange={(e) => setForm({ ...form, from_email: e.target.value })}
                       placeholder="you@example.com"
-                      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#f0d98a]/70 text-sm text-stone-800 transition-all placeholder:text-stone-400"
+                      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#f0d98a]/70 text-base md:text-sm text-stone-800 transition-all placeholder:text-stone-400"
                     />
                   </div>
 
@@ -143,7 +143,7 @@ export default function EmailButton() {
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="e.g. +91 81368 12345"
-                      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#f0d98a]/70 text-sm text-stone-800 transition-all placeholder:text-stone-400"
+                      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#f0d98a]/70 text-base md:text-sm text-stone-800 transition-all placeholder:text-stone-400"
                     />
                   </div>
 
@@ -158,7 +158,7 @@ export default function EmailButton() {
                       value={form.message}
                       onChange={(e) => setForm({ ...form, message: e.target.value })}
                       placeholder="Describe your travel dates, group size, or destinations..."
-                      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#f0d98a]/70 text-sm text-stone-800 transition-all placeholder:text-stone-400 resize-none"
+                      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#f0d98a]/70 text-base md:text-sm text-stone-800 transition-all placeholder:text-stone-400 resize-none"
                     />
                   </div>
 
