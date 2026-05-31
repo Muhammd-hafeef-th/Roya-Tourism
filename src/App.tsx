@@ -13,6 +13,7 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
+import EmailButton from './components/EmailButton';
 
 const InternationalTrips = lazy(() => import('./pages/InternationalTrips'));
 const DomesticTrips = lazy(() => import('./pages/DomesticTrips'));
@@ -76,11 +77,11 @@ function HomePage({ startHeroAnimation }: { startHeroAnimation: boolean }) {
   return (
     <>
       <Hero startAnimation={startHeroAnimation} />
-      <ScrollJourney />
-      <About />
-      <Packages />
       <DomesticPackages />
+      <Packages />
       <Umrah />
+      <About />
+      <ScrollJourney />
       <Testimonials />
       <Contact />
     </>
@@ -148,6 +149,7 @@ function MainApp() {
         </Routes>
         
         <Footer />
+        <EmailButton />
         <WhatsAppButton />
       </div>
     </div>

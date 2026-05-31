@@ -74,6 +74,8 @@ export default {
       fontFamily: {
         serif: ['Cormorant Garamond', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        outfit: ['Outfit', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
       },
       fontSize: {
         '2xs': '0.625rem',

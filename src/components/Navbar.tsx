@@ -6,10 +6,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 /* ─── Nav link data ────────────────────────────────────────────── */
 const navLinks = [
   { label: "Home", href: "#hero" },
-  { label: "About", href: "#about" },
-  { label: "Umrah & Hajj", href: "#umrah" },
-  { label: "International Packages", href: "#packages" },
   { label: "Domestic Packages", href: "#domestic" },
+  { label: "International Packages", href: "#packages" },
+  { label: "Umrah & Hajj", href: "#umrah" },
+  { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -112,10 +112,9 @@ export default function Navbar({
         className={`
           fixed top-0 left-0 right-0 z-50
           transition-all duration-500 ease-out
-          ${
-            isSolid
-              ? "bg-white/95 backdrop-blur-xl border-b border-[#c9a84c]/20 shadow-[0_4px_32px_rgba(201,168,76,0.10)]"
-              : "bg-transparent border-b border-white/10"
+          ${isSolid
+            ? "bg-white/95 backdrop-blur-xl border-b border-[#c9a84c]/20 shadow-[0_4px_32px_rgba(201,168,76,0.10)]"
+            : "bg-transparent border-b border-white/10"
           }
         `}
       >
@@ -199,14 +198,13 @@ export default function Navbar({
                   transition-all duration-300 ease-out transform-gpu
                   whitespace-nowrap flex items-center justify-center leading-none
                   hover:-translate-y-0.5
-                  ${
-                    isSolid
-                      ? active === link.href && isHome
-                        ? "text-[#c9a84c]"
-                        : "text-stone-600 hover:text-stone-900"
-                      : active === link.href && isHome
-                        ? "text-[#f0d98a]"
-                        : "text-white/80 hover:text-white"
+                  ${isSolid
+                    ? active === link.href && isHome
+                      ? "text-[#c9a84c]"
+                      : "text-stone-600 hover:text-stone-900"
+                    : active === link.href && isHome
+                      ? "text-[#f0d98a]"
+                      : "text-white/80 hover:text-white"
                   }
                 `}
               >
@@ -252,19 +250,18 @@ export default function Navbar({
                 font-sans font-semibold tracking-wider
                 transition-all duration-400
                 group
-                ${
-                  isSolid
-                    ? "bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] bg-[length:200%_100%] text-white shadow-[0_4px_15px_rgba(201,168,76,0.3)] hover:shadow-[0_8px_25px_rgba(201,168,76,0.5)] hover:bg-right-center hover:-translate-y-0.5"
-                    : "bg-white/10 border border-white/30 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5"
+                ${isSolid
+                  ? "bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] bg-[length:200%_100%] text-white shadow-[0_4px_15px_rgba(201,168,76,0.3)] hover:shadow-[0_8px_25px_rgba(201,168,76,0.5)] hover:bg-right-center hover:-translate-y-0.5"
+                  : "bg-white/10 border border-white/30 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5"
                 }
               `}
               style={
                 isSolid
                   ? {
-                      background:
-                        "linear-gradient(135deg, #c9a84c 0%, #f0d98a 50%, #c9a84c 100%)",
-                      backgroundSize: "200% auto",
-                    }
+                    background:
+                      "linear-gradient(135deg, #c9a84c 0%, #f0d98a 50%, #c9a84c 100%)",
+                    backgroundSize: "200% auto",
+                  }
                   : undefined
               }
             >
@@ -284,14 +281,13 @@ export default function Navbar({
               rounded-full
               transition-all duration-300
               flex-shrink-0 relative z-10
-              ${
-                mobileOpen
-                  ? isSolid
-                    ? "bg-[#c9a84c]/10 text-[#c9a84c]"
-                    : "bg-white/20 text-white"
-                  : isSolid
-                    ? "text-stone-700 hover:bg-stone-100"
-                    : "text-white hover:bg-white/15"
+              ${mobileOpen
+                ? isSolid
+                  ? "bg-[#c9a84c]/10 text-[#c9a84c]"
+                  : "bg-white/20 text-white"
+                : isSolid
+                  ? "text-stone-700 hover:bg-stone-100"
+                  : "text-white hover:bg-white/15"
               }
             `}
           >
@@ -409,10 +405,9 @@ export default function Navbar({
                       tracking-wide
                       transition-all duration-200
                       group
-                      ${
-                        active === link.href && isHome
-                          ? "bg-gradient-to-r from-[#c9a84c]/5 to-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/30"
-                          : "text-stone-700 hover:bg-stone-50 hover:text-stone-900 border border-transparent"
+                      ${active === link.href && isHome
+                        ? "bg-gradient-to-r from-[#c9a84c]/5 to-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/30"
+                        : "text-stone-700 hover:bg-stone-50 hover:text-stone-900 border border-transparent"
                       }
                     `}
                   >
